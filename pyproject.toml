@@ -1,0 +1,31 @@
+[project]
+name = "climate-ml"
+version = "1.0.0"
+description = "Machine Learning layer untuk data iklim BIG (di atas PoC ETL PostGIS)"
+requires-python = ">=3.12"
+readme = "README.md"
+
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "-ra"
+markers = [
+    "db: test yang membutuhkan koneksi PostgreSQL/PostGIS (di-skip bila DATABASE_URL tak diset)",
+]
+
+[tool.coverage.run]
+source = ["climate_ml"]
+omit = ["*/serving/api.py", "*/pipelines/flow.py"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]

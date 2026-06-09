@@ -1,0 +1,21 @@
+use_case: UC4
+target: t2m_celsius
+model_name: random_forest
+source_table: era5_monthly
+
+features:
+  spatial: [lat, lon]
+  cyclical: [month]   # → sin/cos
+
+hyperparameters:
+  n_estimators: 300
+  max_depth: 10
+  min_samples_leaf: 3
+
+cv:
+  strategy: kfold
+  n_splits: 5
+
+quality_gate:
+  metric: skill_score
+  threshold: 0.0

@@ -1,0 +1,26 @@
+[
+  {
+    "source": "bmkg",
+    "run_timestamp": "2026-06-05T00:00:00Z",
+    "total_rows": 336,
+    "clean_rows": 333,
+    "flagged_rows": 3,
+    "pct_clean": 99.1
+  },
+  {
+    "source": "nasa_power",
+    "run_timestamp": "2026-06-05T00:00:00Z",
+    "total_rows": 192,
+    "clean_rows": 192,
+    "flagged_rows": 0,
+    "pct_clean": 100.0
+  },
+  {
+    "source": "chirps",
+    "run_timestamp": "2026-06-05T00:00:00Z",
+    "total_rows": 240,
+    "clean_rows": 240,
+    "flagged_rows": 0,
+    "pct_clean": 100.0
+  }
+]

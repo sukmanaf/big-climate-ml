@@ -1,0 +1,23 @@
+use_case: UC2
+target: t2m                            # alternatif: prectotcorr
+model_name: gradient_boosting
+source_table: nasa_power_monthly
+
+features:
+  # t2m_max/t2m_min sengaja dikecualikan (leakage trivial untuk target t2m)
+  numeric: [rh2m, ws2m, allsky_sfc_sw_dwn]
+  cyclical: [month]                    # → sin/cos
+  spatial: [lat, lon]
+
+hyperparameters:
+  n_estimators: 300
+  max_depth: 3
+  learning_rate: 0.05
+
+cv:
+  strategy: kfold
+  n_splits: 5
+
+quality_gate:
+  metric: skill_score                  # > 0 berarti lebih baik dari baseline klimatologi
+  threshold: 0.0

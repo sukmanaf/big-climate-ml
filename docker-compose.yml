@@ -1,0 +1,25 @@
+# Climate ML — docker compose up --build -d  → buka http://localhost:8000/ui/
+# Buat .env di direktori ini sebelum menjalankan:
+#   DATABASE_URL=postgresql+psycopg2://user:pass@host:port/dbname
+services:
+  climate-ml:
+    build: .
+    ports:
+      - "8000:8000"
+    env_file:
+      - .env
+    environment:
+      MODEL_DIR: /app/models
+    volumes:
+      # Bind-mount src+web+config agar perubahan kode langsung terlihat tanpa rebuild
+      - ./src:/app/src
+      - ./web:/app/web
+      - ./config:/app/config
+      # Named volume: model dilatih ulang di dalam container (sklearn versi container)
+      # agar tidak ada version mismatch antara host sklearn dan container sklearn
+      - climate_models:/app/models
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+
+volumes:
+  climate_models:

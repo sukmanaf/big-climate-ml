@@ -1,0 +1,24 @@
+use_case: UC1
+target: cuaca
+model_name: random_forest
+
+# Fitur eksplisit — mencegah leakage (curah_hujan_mm SENGAJA dikecualikan, lihat Bab 8.4)
+features:
+  numeric: [suhu_c, kelembaban_pct, kecepatan_angin_kmh, tutupan_awan_pct]
+  cyclical: [arah_angin_deg]          # → sin/cos
+  spatial: [lat, lon]
+  temporal: [datetime_local]          # → hour, month (sin/cos), musim
+
+hyperparameters:
+  n_estimators: 200
+  max_depth: 12
+  class_weight: balanced
+  min_samples_leaf: 2
+
+cv:
+  strategy: stratified_kfold
+  n_splits: 5
+
+quality_gate:
+  metric: macro_f1
+  margin_over_baseline: 0.10

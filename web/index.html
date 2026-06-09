@@ -1,0 +1,738 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Climate ML — Demo Tester</title>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+  :root { --bg:#0f172a; --card:#1e293b; --line:#334155; --txt:#e2e8f0;
+          --muted:#94a3b8; --accent:#38bdf8; --ok:#34d399; --bad:#f87171; }
+  * { box-sizing: border-box; }
+  body { margin:0; font-family: system-ui, -apple-system, sans-serif;
+         background:var(--bg); color:var(--txt); line-height:1.5; }
+  header { padding:20px 24px; border-bottom:1px solid var(--line);
+           display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:12px;}
+  header h1 { font-size:18px; margin:0; }
+  header .sub { color:var(--muted); font-size:13px; }
+  #status { font-size:13px; padding:6px 12px; border-radius:20px; border:1px solid var(--line); }
+  .dot { display:inline-block; width:8px; height:8px; border-radius:50%; margin-right:6px; }
+  main { max-width:1100px; margin:0 auto; padding:24px; display:grid;
+         grid-template-columns: 1fr 1fr; gap:20px; }
+  .card { background:var(--card); border:1px solid var(--line); border-radius:12px; padding:20px; }
+  .card.full { grid-column: 1 / -1; }
+  h2 { font-size:15px; margin:0 0 4px; }
+  .hint { color:var(--muted); font-size:12.5px; margin:0 0 16px; }
+  label { display:block; font-size:12.5px; color:var(--muted); margin:10px 0 4px; }
+  input, select { width:100%; padding:8px 10px; background:#0b1220; color:var(--txt);
+                  border:1px solid var(--line); border-radius:8px; font-size:14px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  button { cursor:pointer; border:none; border-radius:8px; padding:10px 16px;
+           font-size:14px; font-weight:600; }
+  .btn-primary { background:var(--accent); color:#04293a; width:100%; margin-top:16px; }
+  .btn-ghost { background:transparent; color:var(--muted); border:1px solid var(--line);
+               padding:6px 12px; font-size:12.5px; font-weight:500; }
+  .presets { display:flex; gap:8px; flex-wrap:wrap; margin-top:4px; }
+  .result { margin-top:16px; padding:16px; border-radius:10px; background:#0b1220;
+            border:1px solid var(--line); min-height:48px; }
+  .pred-label { font-size:24px; font-weight:700; color:var(--accent); }
+  .bar-wrap { margin-top:12px; }
+  .bar-row { display:flex; align-items:center; gap:10px; margin:6px 0; font-size:13px; }
+  .bar-name { width:120px; color:var(--muted); }
+  .bar-track { flex:1; background:#020617; border-radius:6px; height:18px; overflow:hidden; }
+  .bar-fill { height:100%; background:var(--accent); transition:width .3s; }
+  .bar-val { width:50px; text-align:right; }
+  .badge-ok { color:var(--ok); } .badge-bad { color:var(--bad); }
+  table { width:100%; border-collapse:collapse; font-size:13px; }
+  td,th { padding:6px 8px; border-bottom:1px solid var(--line); text-align:left; }
+  td:first-child { color:var(--muted); }
+  code { background:#0b1220; padding:2px 6px; border-radius:4px; font-size:12px; }
+  #map { height:340px; border-radius:10px; border:1px solid var(--line); margin-top:4px; }
+  .leaflet-popup-content, .leaflet-container a.leaflet-popup-close-button { color:#0f172a; }
+  #coord-readout { margin-top:10px; font-size:13px; color:var(--accent); }
+  footer { text-align:center; color:var(--muted); font-size:12px; padding:20px; }
+  @media (max-width:780px){ main { grid-template-columns:1fr; } }
+
+  /* Tab */
+  .tabs { grid-column:1/-1; display:flex; gap:8px; border-bottom:1px solid var(--line); padding-bottom:0; }
+  .tab-btn {
+    padding:10px 20px; border-radius:8px 8px 0 0; font-size:13px; font-weight:600;
+    background:transparent; color:var(--muted); border:1px solid transparent;
+    border-bottom:none; cursor:pointer; position:relative; bottom:-1px;
+  }
+  .tab-btn.active {
+    background:var(--card); color:var(--txt);
+    border-color:var(--line); border-bottom-color:var(--card);
+  }
+  .tab-btn .tab-badge {
+    display:inline-block; font-size:10px; padding:1px 6px; border-radius:10px;
+    margin-left:6px; font-weight:500;
+  }
+  .tab-btn.ml-tab .tab-badge  { background:#1e3a5f; color:#38bdf8; }
+  .tab-btn.ana-tab .tab-badge { background:#1a2e1a; color:#34d399; }
+  .tab-panel { display:none; grid-column:1/-1;
+    display:none; grid-template-columns:1fr 1fr; gap:20px; }
+  .tab-panel.active { display:grid; }
+</style>
+</head>
+<body>
+<header>
+  <div>
+    <h1>🌦️ Climate ML — Demo Tester</h1>
+    <div class="sub">Uji model UC-1 s/d UC-5 — data real PostGIS (BMKG · NASA POWER · CHIRPS · RDTR)</div>
+  </div>
+  <div id="status"><span class="dot" style="background:#fbbf24"></span>memeriksa…</div>
+</header>
+
+<main>
+  <!-- Info model -->
+  <section class="card full">
+    <h2>Status Model</h2>
+    <p class="hint">Diambil dari <code>GET /v1/model/info</code>.</p>
+    <table id="model-info"><tr><td>memuat…</td><td></td></tr></table>
+  </section>
+
+  <!-- Peta pemilih lokasi -->
+  <section class="card full">
+    <h2>📍 Pilih Lokasi di Peta</h2>
+    <p class="hint">Klik peta → koordinat terisi ke panel aktif di bawah.</p>
+    <div id="map"></div>
+    <div id="coord-readout">Belum ada titik dipilih — klik peta.</div>
+  </section>
+
+  <!-- Tab switcher -->
+  <div class="tabs">
+    <button class="tab-btn ml-tab active" onclick="switchTab('ml')">
+      🤖 Model Prediktif
+      <span class="tab-badge">ML</span>
+    </button>
+    <button class="tab-btn ana-tab" onclick="switchTab('analitik')">
+      📊 Analitik
+      <span class="tab-badge">Non-ML</span>
+    </button>
+  </div>
+
+  <!-- ===== TAB: MODEL PREDIKTIF (ML) ===== -->
+  <div id="tab-ml" class="tab-panel active">
+
+  <!-- UC-1 -->
+  <section class="card">
+    <h2>UC-1 · Klasifikasi Kondisi Cuaca</h2>
+    <p class="hint">Pilih wilayah → data terisi otomatis dari DB → model memprediksi <code>cuaca</code>.</p>
+
+    <!-- Cascading dropdown lokasi -->
+    <div class="row" style="margin-bottom:6px">
+      <div>
+        <label>Provinsi</label>
+        <select id="loc_prov" onchange="onProvChange()">
+          <option value="">— pilih provinsi —</option>
+        </select>
+      </div>
+      <div>
+        <label>Kota / Kabupaten</label>
+        <select id="loc_kab" onchange="onKabChange()" disabled>
+          <option value="">— pilih kota/kab —</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:12px">
+      <div>
+        <label>Kecamatan <span style="color:var(--muted)">(opsional)</span></label>
+        <select id="loc_kec" onchange="onKecChange()" disabled>
+          <option value="">Semua kecamatan di kota ini</option>
+        </select>
+      </div>
+      <div>
+        <label>Desa / Kelurahan <span style="color:var(--muted)">(opsional)</span></label>
+        <select id="loc_desa" onchange="onDesaChange()" disabled>
+          <option value="">Semua desa di kecamatan ini</option>
+        </select>
+      </div>
+    </div>
+
+    <!-- Parameter — readonly, diisi otomatis dari DB -->
+    <div class="row">
+      <div><label>Suhu (°C)</label><input id="suhu_c" type="number" step="0.1" placeholder="—" readonly style="opacity:.75"></div>
+      <div><label>Kelembaban (%)</label><input id="kelembaban_pct" type="number" placeholder="—" readonly style="opacity:.75"></div>
+    </div>
+    <div class="row">
+      <div><label>Kecepatan angin (km/jam)</label><input id="kecepatan_angin_kmh" type="number" step="0.1" placeholder="—" readonly style="opacity:.75"></div>
+      <div><label>Arah angin (derajat)</label><input id="arah_angin_deg" type="number" placeholder="—" readonly style="opacity:.75"></div>
+    </div>
+    <div class="row">
+      <div><label>Tutupan awan (%)</label><input id="tutupan_awan_pct" type="number" placeholder="—" readonly style="opacity:.75"></div>
+      <div><label>Waktu lokal</label><input id="datetime_local" type="text" placeholder="—" readonly style="opacity:.75"></div>
+    </div>
+    <div class="row">
+      <div><label>Lat</label><input id="lat" type="number" step="0.0001" placeholder="—" readonly style="opacity:.75"></div>
+      <div><label>Lon</label><input id="lon" type="number" step="0.0001" placeholder="—" readonly style="opacity:.75"></div>
+    </div>
+
+    <button class="btn-primary" id="btn-predict-weather" onclick="predictWeather()" disabled>Prediksi Cuaca</button>
+    <div class="result" id="weather-result" style="color:var(--muted)">Pilih wilayah di atas untuk memuat data.</div>
+  </section>
+
+  <!-- UC-2 -->
+  <section class="card">
+    <h2>UC-2 · Prediksi Suhu Bulanan</h2>
+    <p class="hint">Pilih lokasi & bulan → semua parameter terisi dari DB → model memprediksi suhu rata-rata (<code>t2m</code>).</p>
+    <div class="row">
+      <div>
+        <label>Lokasi</label>
+        <select id="c_loc" onchange="onNasaLocChange()">
+          <option value="">— memuat lokasi… —</option>
+        </select>
+      </div>
+      <div>
+        <label>Bulan</label>
+        <select id="c_month" onchange="onNasaLocChange()">
+          <option value="1">Januari</option><option value="2">Februari</option>
+          <option value="3">Maret</option><option value="4">April</option>
+          <option value="5">Mei</option><option value="6">Juni</option>
+          <option value="7" selected>Juli</option><option value="8">Agustus</option>
+          <option value="9">September</option><option value="10">Oktober</option>
+          <option value="11">November</option><option value="12">Desember</option>
+        </select>
+      </div>
+    </div>
+    <!-- Parameter readonly — terisi otomatis dari DB -->
+    <div class="row" style="margin-top:8px">
+      <div><label>Kelembaban (%)</label><input id="c_rh2m" type="number" readonly style="opacity:.75" placeholder="—"></div>
+      <div><label>Kec. Angin (m/s)</label><input id="c_ws2m" type="number" readonly style="opacity:.75" placeholder="—"></div>
+    </div>
+    <div class="row">
+      <div><label>Radiasi (MJ/m²/hari)</label><input id="c_rad" type="number" readonly style="opacity:.75" placeholder="—"></div>
+      <div><label>Koordinat</label><input id="c_coord" type="text" readonly style="opacity:.75" placeholder="—"></div>
+    </div>
+    <input type="hidden" id="c_lat" value="-5.14">
+    <input type="hidden" id="c_lon" value="119.42">
+    <button class="btn-primary" id="btn-predict-climate" onclick="predictClimate()" disabled>Prediksi Suhu</button>
+    <div class="result" id="climate-result" style="color:var(--muted)">Pilih lokasi & bulan untuk memuat data.</div>
+  </section>
+
+  <!-- UC-4 (masih di tab ML) -->
+  <section class="card">
+    <h2>UC-4 · Interpolasi Spasial Suhu (ERA5)</h2>
+    <p class="hint">Pilih titik di Sulawesi Selatan & bulan → prediksi suhu via interpolasi grid ERA5.</p>
+    <div id="uc4-status" style="margin-bottom:8px;font-size:12px;color:var(--muted)">Memeriksa ERA5…</div>
+    <div class="row">
+      <div>
+        <label>Contoh titik</label>
+        <select id="e_loc" onchange="setEra5Loc()">
+          <option value="">— atau klik peta —</option>
+          <option value="-5.14,119.42">Makassar (pesisir)</option>
+          <option value="-4.54,120.33">Bone (pesisir timur)</option>
+          <option value="-3.05,119.85">Toraja (dataran tinggi)</option>
+          <option value="-2.5,120.25">Luwu (tengah Sulsel)</option>
+          <option value="-5.75,119.75">Gowa (selatan Makassar)</option>
+          <option value="-4.0,121.5">Kolaka (pesisir timur)</option>
+        </select>
+      </div>
+      <div>
+        <label>Bulan</label>
+        <select id="e_month">
+          <option value="1">Januari</option><option value="2">Februari</option>
+          <option value="3">Maret</option><option value="4">April</option>
+          <option value="5">Mei</option><option value="6">Juni</option>
+          <option value="7" selected>Juli</option><option value="8">Agustus</option>
+          <option value="9">September</option><option value="10">Oktober</option>
+          <option value="11">November</option><option value="12">Desember</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-top:4px">
+      <div><label>Lat <span style="color:var(--muted);font-size:11px">(−6 s/d −2)</span></label>
+        <input id="e_lat" type="number" value="-4.0" step="0.25" min="-6" max="-2"></div>
+      <div><label>Lon <span style="color:var(--muted);font-size:11px">(119 s/d 122)</span></label>
+        <input id="e_lon" type="number" value="120.5" step="0.25" min="119" max="122"></div>
+    </div>
+    <button class="btn-primary" onclick="predictEra5()">Prediksi Suhu ERA5</button>
+    <div class="result" id="era5-result">Hasil prediksi muncul di sini.</div>
+  </section>
+
+  <!-- UC-3 -->
+  <section class="card">
+    <h2>UC-3 · Deteksi Anomali (Quality Control)</h2>
+    <p class="hint">Pilih wilayah BMKG atau gunakan contoh → dua lapis: rule-based range check + IsolationForest.</p>
+    <div class="row" style="margin-bottom:6px">
+      <div>
+        <label>Provinsi</label>
+        <select id="q_prov" onchange="onQProvChange()">
+          <option value="">— pilih provinsi —</option>
+        </select>
+      </div>
+      <div>
+        <label>Kota / Kabupaten</label>
+        <select id="q_kab" onchange="onQKabChange()" disabled>
+          <option value="">— pilih kota/kab —</option>
+        </select>
+      </div>
+    </div>
+    <div class="row" style="margin-bottom:8px">
+      <div>
+        <label>Kecamatan <span style="color:var(--muted)">(opsional)</span></label>
+        <select id="q_kec" onchange="onQKecChange()" disabled>
+          <option value="">Semua kecamatan</option>
+        </select>
+      </div>
+      <div>
+        <label>Desa <span style="color:var(--muted)">(opsional)</span></label>
+        <select id="q_desa" onchange="onQDesaChange()" disabled>
+          <option value="">Semua desa</option>
+        </select>
+      </div>
+    </div>
+    <div class="presets">
+      <button class="btn-ghost" onclick="presetAnom('normal')">✅ Normal</button>
+      <button class="btn-ghost" onclick="presetAnom('rusak')">⚠️ Sensor rusak</button>
+    </div>
+    <div class="row" style="margin-top:8px">
+      <div><label>Suhu (°C)</label><input id="a_suhu_c" type="number" value="28" step="0.1"></div>
+      <div><label>Kelembaban (%)</label><input id="a_kelembaban_pct" type="number" value="80"></div>
+    </div>
+    <div class="row">
+      <div><label>Curah hujan (mm)</label><input id="a_curah_hujan_mm" type="number" value="0"></div>
+      <div><label>Kecepatan angin (km/jam)</label><input id="a_kecepatan_angin_kmh" type="number" value="5"></div>
+    </div>
+    <button class="btn-primary" onclick="checkAnomaly()">Cek Anomali</button>
+    <div class="result" id="anomaly-result" style="color:var(--muted)">Pilih wilayah atau masukkan nilai manual.</div>
+  </section>
+
+  </div><!-- /tab-ml -->
+
+  <!-- ===== TAB: ANALITIK (Non-ML) ===== -->
+  <div id="tab-analitik" class="tab-panel">
+
+  <!-- UC-5 -->
+  <section class="card" style="grid-column:1/-1">
+    <h2>UC-5 · Risiko Iklim per Zona RDTR — Kota Yogyakarta</h2>
+    <p class="hint">Overlay tata ruang × iklim. Composite risk = 0.5·suhu_maks + 0.3·curah_hujan + 0.2·kelembaban (ternormalisasi antar-zona).</p>
+    <div id="risk-result" style="margin-top:4px;color:var(--muted)">Memuat data risiko…</div>
+  </section>
+
+  </div><!-- /tab-analitik -->
+
+</main>
+
+<footer>Climate ML v1.0 · BIG · API docs di <a href="/docs" style="color:var(--accent)">/docs</a></footer>
+
+<script>
+const API = ""; // same-origin (dilayani FastAPI di /ui)
+
+async function jget(path){ const r = await fetch(API+path); if(!r.ok) throw new Error(await r.text()); return r.json(); }
+async function jpost(path, body){
+  const r = await fetch(API+path, {method:"POST", headers:{"Content-Type":"application/json"}, body:JSON.stringify(body)});
+  const data = await r.json();
+  if(!r.ok) throw new Error(data.detail ? JSON.stringify(data.detail) : JSON.stringify(data));
+  return data;
+}
+const val = id => document.getElementById(id).value;
+const numval = id => parseFloat(val(id));
+
+function switchTab(name){
+  document.querySelectorAll(".tab-panel").forEach(p => p.classList.remove("active"));
+  document.querySelectorAll(".tab-btn").forEach(b => b.classList.remove("active"));
+  document.getElementById("tab-" + name).classList.add("active");
+  document.querySelector("." + name + "-tab").classList.add("active");
+  if(map) setTimeout(() => map.invalidateSize(), 50);
+}
+
+async function refreshStatus(){
+  const el = document.getElementById("status");
+  try {
+    const h = await jget("/healthz");
+    const info = await jget("/v1/model/info");
+    if(h.model_loaded){
+      el.innerHTML = '<span class="dot" style="background:var(--ok)"></span>API online · model termuat';
+    } else {
+      el.innerHTML = '<span class="dot" style="background:var(--bad)"></span>API online · model BELUM dilatih';
+    }
+    renderModelInfo(info);
+  } catch(e){
+    el.innerHTML = '<span class="dot" style="background:var(--bad)"></span>API tidak terjangkau';
+  }
+}
+
+function renderModelInfo(info){
+  const t = document.getElementById("model-info");
+  if(!info.model_loaded){
+    t.innerHTML = '<tr><td>Status</td><td class="badge-bad">Model belum dilatih — jalankan <code>make demo</code></td></tr>';
+    return;
+  }
+  const m = info.metrics || {};
+  t.innerHTML = `
+    <tr><td>Model</td><td>${info.model_name} · ${info.model_version}</td></tr>
+    <tr><td>Target</td><td>${info.target}</td></tr>
+    <tr><td>Kelas</td><td>${(info.classes||[]).join(", ")}</td></tr>
+    <tr><td>Macro-F1 (CV)</td><td>${m.macro_f1!=null ? m.macro_f1.toFixed(3) : "-"}</td></tr>
+    <tr><td>Baris latih</td><td>${info.data_rows}</td></tr>`;
+}
+
+function presetAnom(k){
+  const v = k==="rusak" ? {a_suhu_c:999, a_kelembaban_pct:150, a_curah_hujan_mm:0, a_kecepatan_angin_kmh:5}
+                        : {a_suhu_c:28, a_kelembaban_pct:80, a_curah_hujan_mm:0, a_kecepatan_angin_kmh:5};
+  for(const [f,x] of Object.entries(v)) document.getElementById(f).value = x;
+}
+
+// ===== Lokasi hierarchy (UC-1 cascading dropdown) =====
+let _LOC = {};   // { provinsi: { kotkab: [{kecamatan, desa:[]}] } }
+
+async function loadLocations(){
+  try {
+    _LOC = await jget("/v1/locations");
+    // Isi dropdown UC-1
+    const sel = document.getElementById("loc_prov");
+    Object.keys(_LOC).sort().forEach(p => {
+      const o = document.createElement("option"); o.value = p; o.textContent = p;
+      sel.appendChild(o);
+    });
+    // Isi dropdown UC-3 dari data yang sama
+    _syncQDropdowns();
+  } catch(e){ console.warn("Gagal load lokasi:", e.message); }
+}
+
+function _setOpts(selId, items, defaultLabel, disabled){
+  const sel = document.getElementById(selId);
+  sel.innerHTML = `<option value="">${defaultLabel}</option>`;
+  items.forEach(v => { const o = document.createElement("option"); o.value=v; o.textContent=v; sel.appendChild(o); });
+  sel.disabled = disabled;
+}
+
+function onProvChange(){
+  const prov = document.getElementById("loc_prov").value;
+  _setOpts("loc_kab", prov ? Object.keys(_LOC[prov]).sort() : [], "— pilih kota/kab —", !prov);
+  _setOpts("loc_kec", [], "Semua kecamatan di kota ini", true);
+  _setOpts("loc_desa", [], "Semua desa di kecamatan ini", true);
+  if(prov) fetchSampleByLoc(prov, null, null, null);
+  else resetWeatherForm();
+}
+
+function onKabChange(){
+  const prov = document.getElementById("loc_prov").value;
+  const kab  = document.getElementById("loc_kab").value;
+  const kecData = kab ? _LOC[prov][kab] : [];
+  _setOpts("loc_kec", kecData.map(k=>k.kecamatan).sort(), "Semua kecamatan di kota ini", !kab);
+  _setOpts("loc_desa", [], "Semua desa di kecamatan ini", true);
+  if(kab) fetchSampleByLoc(prov, kab, null, null);
+}
+
+function onKecChange(){
+  const prov = document.getElementById("loc_prov").value;
+  const kab  = document.getElementById("loc_kab").value;
+  const kec  = document.getElementById("loc_kec").value;
+  const kecData = _LOC[prov]?.[kab] || [];
+  const found = kecData.find(k => k.kecamatan === kec);
+  _setOpts("loc_desa", found ? found.desa.sort() : [], "Semua desa di kecamatan ini", !kec);
+  fetchSampleByLoc(prov, kab, kec || null, null);
+}
+
+function onDesaChange(){
+  const prov  = document.getElementById("loc_prov").value;
+  const kab   = document.getElementById("loc_kab").value;
+  const kec   = document.getElementById("loc_kec").value;
+  const desa  = document.getElementById("loc_desa").value;
+  fetchSampleByLoc(prov, kab, kec, desa || null);
+}
+
+async function fetchSampleByLoc(provinsi, kotkab, kecamatan, desa){
+  const box = document.getElementById("weather-result");
+  box.style.color = "var(--muted)";
+  box.textContent = "Memuat data dari DB…";
+  const params = new URLSearchParams();
+  if(provinsi) params.set("provinsi", provinsi);
+  if(kotkab)   params.set("kotkab", kotkab);
+  if(kecamatan)params.set("kecamatan", kecamatan);
+  if(desa)     params.set("desa", desa);
+  try {
+    const s = await jget("/v1/sample/weather?" + params.toString());
+    fillWeatherForm(s);
+    const label = [desa, kecamatan, kotkab, provinsi].filter(Boolean).join(", ");
+    const note  = (!kecamatan && !desa) ? " (rata-rata wilayah)" : "";
+    box.style.color = "";
+    box.innerHTML = `Data dari <b>${label}</b>${note} · cuaca tercatat: <span class="pred-label" style="font-size:18px">${s.actual_cuaca||"—"}</span>
+      <div style="margin-top:6px;color:var(--muted);font-size:12px">Klik <b>Prediksi Cuaca</b> untuk lihat tebakan model.</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+function fillWeatherForm(s){
+  document.getElementById("suhu_c").value            = s.suhu_c;
+  document.getElementById("kelembaban_pct").value    = s.kelembaban_pct;
+  document.getElementById("kecepatan_angin_kmh").value = s.kecepatan_angin_kmh;
+  document.getElementById("arah_angin_deg").value    = s.arah_angin_deg;
+  document.getElementById("tutupan_awan_pct").value  = s.tutupan_awan_pct;
+  document.getElementById("datetime_local").value    = s.datetime_local;
+  document.getElementById("lat").value               = s.lat;
+  document.getElementById("lon").value               = s.lon;
+  document.getElementById("btn-predict-weather").disabled = false;
+  setCoords(s.lat, s.lon);
+}
+
+function resetWeatherForm(){
+  ["suhu_c","kelembaban_pct","kecepatan_angin_kmh","arah_angin_deg","tutupan_awan_pct","datetime_local","lat","lon"]
+    .forEach(id => { document.getElementById(id).value = ""; });
+  document.getElementById("btn-predict-weather").disabled = true;
+  document.getElementById("weather-result").textContent = "Pilih wilayah di atas untuk memuat data.";
+  document.getElementById("weather-result").style.color = "var(--muted)";
+}
+
+async function predictWeather(){
+  const box = document.getElementById("weather-result");
+  box.textContent = "Memprediksi…";
+  try {
+    const payload = {
+      suhu_c:numval("suhu_c"), kelembaban_pct:numval("kelembaban_pct"),
+      kecepatan_angin_kmh:numval("kecepatan_angin_kmh"), arah_angin_deg:numval("arah_angin_deg"),
+      tutupan_awan_pct:numval("tutupan_awan_pct"), lat:numval("lat"), lon:numval("lon"),
+      datetime_local: val("datetime_local"),
+    };
+    const res = await jpost("/v1/predict/weather", payload);
+    const bars = Object.entries(res.probabilities).sort((a,b)=>b[1]-a[1]).map(([k,v])=>`
+      <div class="bar-row"><div class="bar-name">${k}</div>
+        <div class="bar-track"><div class="bar-fill" style="width:${(v*100).toFixed(1)}%"></div></div>
+        <div class="bar-val">${(v*100).toFixed(1)}%</div></div>`).join("");
+    box.innerHTML = `Prediksi: <span class="pred-label">${res.predicted}</span>
+      <span style="color:var(--muted)"> (keyakinan ${(res.proba*100).toFixed(1)}%)</span>
+      <div class="bar-wrap">${bars}</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+// ===== Peta pemilih lokasi =====
+let map, selMarker;
+let _NASA_LOCS = [];  // [{label, lat, lon}] dari nasa_power_monthly
+
+async function loadNasaLocations(){
+  try {
+    _NASA_LOCS = await jget("/v1/nasa-locations");
+    const sel = document.getElementById("c_loc");
+    sel.innerHTML = '<option value="">— pilih lokasi —</option>' +
+      _NASA_LOCS.map(l=>`<option value="${l.label}">${l.label}</option>`).join("");
+    // Pilih Makassar sebagai default
+    const def = _NASA_LOCS.find(l=>l.label==="Makassar");
+    if(def){ sel.value="Makassar"; onNasaLocChange(); }
+  } catch(e){ console.warn("Gagal load nasa-locations:", e.message); }
+}
+
+async function onNasaLocChange(){
+  const label = document.getElementById("c_loc").value;
+  const month = parseInt(document.getElementById("c_month").value);
+  if(!label) return;
+  const box = document.getElementById("climate-result");
+  box.style.color = "var(--muted)"; box.textContent = "Memuat data dari DB…";
+  try {
+    const d = await jget(`/v1/sample/climate?location_label=${encodeURIComponent(label)}&month=${month}`);
+    document.getElementById("c_rh2m").value  = d.rh2m;
+    document.getElementById("c_ws2m").value  = d.ws2m;
+    document.getElementById("c_rad").value   = d.allsky_sfc_sw_dwn;
+    document.getElementById("c_coord").value = `${d.lat}, ${d.lon}`;
+    document.getElementById("c_lat").value   = d.lat;
+    document.getElementById("c_lon").value   = d.lon;
+    document.getElementById("btn-predict-climate").disabled = false;
+    setCoords(d.lat, d.lon);
+    const BULAN = ["","Jan","Feb","Mar","Apr","Mei","Jun","Jul","Agu","Sep","Okt","Nov","Des"];
+    box.style.color = "";
+    box.innerHTML = `Data <b>${d.location_label}</b> · ${BULAN[d.month]} 2023 · rh2m=${d.rh2m}% · ws2m=${d.ws2m} m/s · rad=${d.allsky_sfc_sw_dwn} MJ
+      <div style="margin-top:6px;color:var(--muted);font-size:12px">Klik <b>Prediksi Suhu</b> untuk lihat estimasi model.</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+async function predictClimate(){
+  const box = document.getElementById("climate-result");
+  box.textContent = "Memprediksi…";
+  try {
+    const payload = {
+      lat:numval("c_lat"), lon:numval("c_lon"),
+      month:parseInt(val("c_month")),
+      rh2m:numval("c_rh2m"),
+      ws2m:numval("c_ws2m") || 2.0,
+      allsky_sfc_sw_dwn:numval("c_rad"),
+    };
+    const res = await jpost("/v1/predict/climate", payload);
+    const BULAN = ["","Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
+    box.innerHTML = `Prediksi ${res.target}: <span class="pred-label">${res.predicted} ${res.unit}</span>
+      <div style="margin-top:8px;color:var(--muted)">${val("c_loc")} · ${BULAN[payload.month]}</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+function initMap(){
+  map = L.map("map").setView([-2.5, 116], 4);
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+    {maxZoom:18, attribution:"© OpenStreetMap"}).addTo(map);
+  map.on("click", e => setCoords(e.latlng.lat, e.latlng.lng));
+}
+
+function setCoords(lat, lon){
+  lat = +lat.toFixed(4); lon = +lon.toFixed(4);
+  document.getElementById("lat").value = lat;
+  document.getElementById("lon").value = lon;
+  if(selMarker) selMarker.setLatLng([lat,lon]);
+  else selMarker = L.circleMarker([lat,lon],
+    {radius:9, color:"#f87171", fillColor:"#f87171", fillOpacity:0.9}).addTo(map);
+  document.getElementById("coord-readout").textContent = `Terpilih: ${lat}, ${lon}`;
+}
+
+const RISK_COLOR = {Tinggi:"#f87171", Sedang:"#fbbf24", Rendah:"#34d399"};
+async function loadRisk(){
+  const box = document.getElementById("risk-result");
+  box.style.color = "var(--muted)"; box.textContent = "Menghitung risiko…";
+  try {
+    const zones = await jget("/v1/risk/zones");
+    const rows = zones.map(z=>`<tr>
+      <td>${z.kecamatan}</td>
+      <td style="text-align:right">${z.avg_tmax}°C</td>
+      <td style="text-align:right">${z.avg_precip} mm/hr</td>
+      <td style="text-align:right">${z.avg_humidity}%</td>
+      <td style="text-align:right;font-weight:700">${z.risk_score.toFixed(3)}</td>
+      <td><span style="color:${RISK_COLOR[z.risk_level]};font-weight:700">${z.risk_level}</span></td>
+    </tr>`).join("");
+    box.style.color = "";
+    box.innerHTML = `<div style="font-size:12px;color:var(--muted);margin-bottom:8px">
+        Kota Yogyakarta · ${zones.length} kecamatan · data NASA POWER 2023 · diurut risiko tertinggi
+      </div>
+      <table>
+        <tr><th>Kecamatan</th><th>Suhu maks</th><th>Curah hujan</th><th>Kelembaban</th><th>Risk score</th><th>Level</th></tr>
+        ${rows}
+      </table>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+async function checkAnomaly(){
+  const box = document.getElementById("anomaly-result");
+  box.textContent = "Mengecek…";
+  try {
+    const payload = {
+      suhu_c:numval("a_suhu_c"), kelembaban_pct:numval("a_kelembaban_pct"),
+      curah_hujan_mm:numval("a_curah_hujan_mm"), kecepatan_angin_kmh:numval("a_kecepatan_angin_kmh"),
+    };
+    const res = await jpost("/v1/anomaly/check", payload);
+    const METHOD_LABEL = {
+      rule: "Layer 1 · Rule-based range check",
+      isolation_forest: "Layer 2 · IsolationForest (ML)",
+      both: "Layer 1 + 2 · Rule-based & IsolationForest",
+    };
+    const methodStr = METHOD_LABEL[res.method] || res.method;
+    box.innerHTML = res.is_anomaly
+      ? `<span class="pred-label badge-bad">⚠️ ANOMALI</span>
+         <div style="margin-top:8px;color:var(--muted)">Alasan: <b>${res.reason}</b></div>
+         <div style="margin-top:4px;font-size:12px;color:var(--muted)">Deteksi oleh: ${methodStr} · score: ${res.anomaly_score}</div>`
+      : `<span class="pred-label badge-ok">✅ NORMAL</span>
+         <div style="margin-top:8px;color:var(--muted)">Lolos kedua lapis pemeriksaan.</div>
+         <div style="margin-top:4px;font-size:12px;color:var(--muted)">Anomaly score: ${res.anomaly_score} · ${methodStr}</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+// ===== UC-3 cascading dropdown (reuse _LOC dari UC-1) =====
+function _syncQDropdowns(){
+  // Isi q_prov dari _LOC setelah loadLocations selesai
+  const sel = document.getElementById("q_prov");
+  if(sel.options.length <= 1 && Object.keys(_LOC).length > 0){
+    Object.keys(_LOC).sort().forEach(p => {
+      const o = document.createElement("option"); o.value=p; o.textContent=p; sel.appendChild(o);
+    });
+  }
+}
+
+function onQProvChange(){
+  const prov = document.getElementById("q_prov").value;
+  _setOpts("q_kab", prov ? Object.keys(_LOC[prov]).sort() : [], "— pilih kota/kab —", !prov);
+  _setOpts("q_kec", [], "Semua kecamatan", true);
+  _setOpts("q_desa", [], "Semua desa", true);
+  if(prov) fetchSampleForQC(prov, null, null, null);
+  else resetQCForm();
+}
+
+function onQKabChange(){
+  const prov = document.getElementById("q_prov").value;
+  const kab  = document.getElementById("q_kab").value;
+  const kecData = kab ? _LOC[prov][kab] : [];
+  _setOpts("q_kec", kecData.map(k=>k.kecamatan).sort(), "Semua kecamatan", !kab);
+  _setOpts("q_desa", [], "Semua desa", true);
+  if(kab) fetchSampleForQC(prov, kab, null, null);
+}
+
+function onQKecChange(){
+  const prov = document.getElementById("q_prov").value;
+  const kab  = document.getElementById("q_kab").value;
+  const kec  = document.getElementById("q_kec").value;
+  const found = (_LOC[prov]?.[kab] || []).find(k => k.kecamatan === kec);
+  _setOpts("q_desa", found ? found.desa.sort() : [], "Semua desa", !kec);
+  fetchSampleForQC(prov, kab, kec || null, null);
+}
+
+function onQDesaChange(){
+  const prov = document.getElementById("q_prov").value;
+  const kab  = document.getElementById("q_kab").value;
+  const kec  = document.getElementById("q_kec").value;
+  const desa = document.getElementById("q_desa").value;
+  fetchSampleForQC(prov, kab, kec, desa || null);
+}
+
+async function fetchSampleForQC(provinsi, kotkab, kecamatan, desa){
+  const params = new URLSearchParams();
+  if(provinsi)  params.set("provinsi", provinsi);
+  if(kotkab)    params.set("kotkab", kotkab);
+  if(kecamatan) params.set("kecamatan", kecamatan);
+  if(desa)      params.set("desa", desa);
+  try {
+    const s = await jget("/v1/sample/weather?" + params.toString());
+    document.getElementById("a_suhu_c").value             = s.suhu_c;
+    document.getElementById("a_kelembaban_pct").value     = s.kelembaban_pct;
+    document.getElementById("a_curah_hujan_mm").value     = s.curah_hujan_mm;
+    document.getElementById("a_kecepatan_angin_kmh").value= s.kecepatan_angin_kmh;
+    const label = [desa, kecamatan, kotkab, provinsi].filter(Boolean).join(", ");
+    const note  = (!kecamatan && !desa) ? " (rata-rata wilayah)" : "";
+    document.getElementById("anomaly-result").style.color = "var(--muted)";
+    document.getElementById("anomaly-result").innerHTML =
+      `Data dari <b>${label}</b>${note} · suhu=${s.suhu_c}°C · cuaca=${s.actual_cuaca||"—"}
+      <div style="font-size:12px;margin-top:4px">Nilai sudah terisi — klik <b>Cek Anomali</b>. Bisa ubah nilai manual untuk simulasi sensor rusak.</div>`;
+  } catch(e){ console.warn("fetchSampleForQC:", e.message); }
+}
+
+function resetQCForm(){
+  document.getElementById("anomaly-result").textContent = "Pilih wilayah atau masukkan nilai manual.";
+  document.getElementById("anomaly-result").style.color = "var(--muted)";
+}
+
+// UC-4: pilih titik dari dropdown contoh
+function setEra5Loc(){
+  const v = document.getElementById("e_loc").value;
+  if(!v) return;
+  const [lat, lon] = v.split(",").map(Number);
+  document.getElementById("e_lat").value = lat;
+  document.getElementById("e_lon").value = lon;
+  setCoords(lat, lon);
+  if(map) map.setView([lat, lon], 8);
+}
+
+async function predictEra5(){
+  const box = document.getElementById("era5-result");
+  box.textContent = "Memprediksi…";
+  try {
+    const payload = {lat: numval("e_lat"), lon: numval("e_lon"), month: parseInt(val("e_month"))};
+    const res = await jpost("/v1/predict/era5", payload);
+    box.innerHTML = `Prediksi suhu ERA5: <span class="pred-label">${res.predicted_t2m_celsius} ${res.unit}</span>
+      <div style="margin-top:8px;color:var(--muted)">Koordinat (${res.lat}, ${res.lon}) · Bulan ${res.month}</div>`;
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Error: ${e.message}</span>`; }
+}
+
+async function checkEra5(){
+  const box = document.getElementById("uc4-status");
+  try {
+    const d = await jget("/v1/era5/status");
+    if(d.available){
+      box.innerHTML = `<span class="badge-ok">✅ ERA5 tersedia</span> — ${d.rows} rows · ${d.year_range} · lat ${d.lat_range} · lon ${d.lon_range}`;
+    } else {
+      box.innerHTML = `<span class="badge-bad">⚠️ ERA5 kosong</span> — ${d.message}`;
+    }
+  } catch(e){ box.innerHTML = `<span class="badge-bad">Gagal cek ERA5</span>`; }
+}
+
+initMap();
+refreshStatus();
+checkEra5();
+loadLocations();
+loadNasaLocations();
+loadRisk();
+</script>
+</body>
+</html>

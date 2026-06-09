@@ -1,0 +1,27 @@
+# Konfigurasi global. Nilai sensitif (DATABASE_URL) diambil dari .env, bukan di sini.
+random_seed: 42
+model_dir: ./models
+
+tables:
+  bmkg: bmkg_forecast
+  era5: era5_monthly
+  nasa_power: nasa_power_monthly
+  chirps: chirps_monthly
+  rdtr: rdtr_pola_ruang
+  ml_predictions: ml_predictions
+  ml_anomalies: ml_anomalies
+
+# Kontrak data — range fisik untuk validasi. Selaras range QC laporan PoC v4.1 Bab 16.3.
+contract:
+  suhu_c: {min: -10, max: 50}          # BMKG
+  kelembaban_pct: {min: 0, max: 100}
+  curah_hujan_mm: {min: 0, max: 1000}
+  kecepatan_angin_kmh: {min: 0, max: 500}
+  arah_angin_deg: {min: 0, max: 360}
+  tutupan_awan_pct: {min: 0, max: 100}
+  t2m: {min: -50, max: 60}             # NASA POWER / ERA5
+  t2m_max: {min: -50, max: 60}
+  t2m_min: {min: -50, max: 60}
+  rh2m: {min: 0, max: 100}
+  precipitation_mm: {min: 0, max: 2000}  # CHIRPS
+  min_rows_for_training: 50

@@ -1,0 +1,15 @@
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+.coverage
+htmlcov/
+.env
+mlruns/
+models/*.joblib
+models/*.json
+tests/
+notebooks/
+docs/*.pdf
+.git/

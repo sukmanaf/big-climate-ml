@@ -1,0 +1,16 @@
+# Subset untuk container UC-1 s/d UC-5 + serving + frontend + koneksi PostGIS real.
+pandas>=2.2,<3
+numpy>=1.26,<2.2
+scikit-learn>=1.4,<2
+scipy>=1.12,<2
+fastapi>=0.110,<1
+uvicorn[standard]>=0.29,<1
+pydantic>=2.6,<3
+pydantic-settings>=2.2,<3
+joblib>=1.3,<2
+PyYAML>=6.0,<7
+# Koneksi PostGIS (data real)
+sqlalchemy>=2.0,<3
+psycopg2-binary>=2.9,<3
+geoalchemy2>=0.14,<1
+shapely>=2.0,<3

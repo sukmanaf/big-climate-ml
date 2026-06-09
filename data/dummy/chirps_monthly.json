@@ -1,0 +1,2162 @@
+[
+  {
+    "id": 0,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 383.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 1,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 379.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 2,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 300.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 3,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 216.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 4,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 82.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 5,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 43.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 6,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 31.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 7,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 45.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 8,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 110.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 9,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 203.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 10,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 285.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 11,
+    "lat": -7.675,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 372.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 12,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 425.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 13,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 371.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 14,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 284.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 15,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 195.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 16,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 111.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 17,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 28.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 18,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 19.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 19,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 46.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 20,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 125.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 21,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 233.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 22,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 322.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 23,
+    "lat": -7.675,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 355.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 24,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 381.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 25,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 372.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 26,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 293.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 27,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 182.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 28,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 98.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 29,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 26.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 30,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 31,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 29.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 32,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 131.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 33,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 209.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 34,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 351.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 35,
+    "lat": -7.675,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 377.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 36,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 394.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 37,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 374.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 38,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 307.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 39,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 213.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 40,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 149.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 41,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 19.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 42,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 27.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 43,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 40.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 44,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 76.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 45,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 220.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 46,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 327.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 47,
+    "lat": -7.675,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 356.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 48,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 399.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 49,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 339.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 50,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 277.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 51,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 226.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 52,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 98.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 53,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 13.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 54,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 14.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 55,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 25.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 56,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 98.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 57,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 219.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 58,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 279.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 59,
+    "lat": -7.675,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 355.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 60,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 403.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 61,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 393.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 62,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 327.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 63,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 191.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 64,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 126.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 65,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 20.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 66,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 46.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 67,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 13.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 68,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 134.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 69,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 191.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 70,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 342.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 71,
+    "lat": -7.725,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 385.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 72,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 379.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 73,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 363.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 74,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 318.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 75,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 226.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 76,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 106.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 77,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 37.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 78,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 25.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 79,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 38.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 80,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 81.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 81,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 188.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 82,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 307.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 83,
+    "lat": -7.725,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 398.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 84,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 432.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 85,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 389.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 86,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 308.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 87,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 220.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 88,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 94.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 89,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 33.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 90,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 91,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 11.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 92,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 114.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 93,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 208.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 94,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 316.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 95,
+    "lat": -7.725,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 384.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 96,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 404.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 97,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 385.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 98,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 301.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 99,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 213.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 100,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 93.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 101,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 43.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 102,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 23.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 103,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 22.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 104,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 108.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 105,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 192.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 106,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 292.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 107,
+    "lat": -7.725,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 351.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 108,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 425.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 109,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 395.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 110,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 313.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 111,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 244.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 112,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 103.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 113,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 96.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 114,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 5.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 115,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 41.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 116,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 99.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 117,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 212.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 118,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 319.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 119,
+    "lat": -7.725,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 371.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 120,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 435.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 121,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 378.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 122,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 307.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 123,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 186.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 124,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 115.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 125,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 33.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 126,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 127,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 20.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 128,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 160.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 129,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 199.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 130,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 273.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 131,
+    "lat": -7.775,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 359.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 132,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 399.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 133,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 384.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 134,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 313.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 135,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 218.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 136,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 94.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 137,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 42.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 138,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 139,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 23.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 140,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 89.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 141,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 181.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 142,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 323.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 143,
+    "lat": -7.775,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 387.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 144,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 419.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 145,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 374.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 146,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 318.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 147,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 169.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 148,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 124.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 149,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 39.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 150,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 22.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 151,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 43.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 152,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 87.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 153,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 175.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 154,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 288.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 155,
+    "lat": -7.775,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 385.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 156,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 413.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 157,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 346.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 158,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 282.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 159,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 190.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 160,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 100.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 161,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 8.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 162,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 163,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 19.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 164,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 109.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 165,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 181.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 166,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 300.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 167,
+    "lat": -7.775,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 395.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 168,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 374.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 169,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 369.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 170,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 323.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 171,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 196.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 172,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 96.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 173,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 59.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 174,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 3.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 175,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 58.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 176,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 116.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 177,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 198.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 178,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 312.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 179,
+    "lat": -7.775,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 380.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 180,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 420.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 181,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 362.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 182,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 303.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 183,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 203.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 184,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 121.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 185,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 15.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 186,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 30.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 187,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 45.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 188,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 81.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 189,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 229.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 190,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 347.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 191,
+    "lat": -7.825,
+    "lon": 110.275,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 393.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 192,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 428.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 193,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 375.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 194,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 269.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 195,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 168.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 196,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 112.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 197,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 24.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 198,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 0.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 199,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 34.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 200,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 119.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 201,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 175.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 202,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 293.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 203,
+    "lat": -7.825,
+    "lon": 110.325,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 404.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 204,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 378.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 205,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 391.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 206,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 292.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 207,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 215.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 208,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 129.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 209,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 51.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 210,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 28.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 211,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 13.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 212,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 129.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 213,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 187.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 214,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 307.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 215,
+    "lat": -7.825,
+    "lon": 110.375,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 379.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 216,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 409.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 217,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 380.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 218,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 285.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 219,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 178.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 220,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 124.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 221,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 39.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 222,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 33.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 223,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 35.2,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 224,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 79.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 225,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 224.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 226,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 295.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 227,
+    "lat": -7.825,
+    "lon": 110.425,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 380.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 228,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 1,
+    "precipitation_mm": 387.1,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 229,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 2,
+    "precipitation_mm": 406.8,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 230,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 3,
+    "precipitation_mm": 285.0,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 231,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 4,
+    "precipitation_mm": 198.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 232,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 5,
+    "precipitation_mm": 109.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 233,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 6,
+    "precipitation_mm": 14.3,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 234,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 7,
+    "precipitation_mm": 16.6,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 235,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 8,
+    "precipitation_mm": 68.4,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 236,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 9,
+    "precipitation_mm": 97.7,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 237,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 10,
+    "precipitation_mm": 212.9,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 238,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 11,
+    "precipitation_mm": 247.5,
+    "qc_flag": "OK"
+  },
+  {
+    "id": 239,
+    "lat": -7.825,
+    "lon": 110.475,
+    "year": 2023,
+    "month": 12,
+    "precipitation_mm": 373.1,
+    "qc_flag": "OK"
+  }
+]
