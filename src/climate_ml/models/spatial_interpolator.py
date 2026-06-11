@@ -11,20 +11,21 @@ from climate_ml.config import get_settings
 from climate_ml.features.build import build_uc4_preprocessor
 
 
-def build_uc4_pipeline(**hp) -> Pipeline:
-    """Pipeline lengkap preprocessor + RF untuk UC-4."""
+def build_uc4_pipeline(use_soil: bool = False, **hp) -> Pipeline:
+    """Pipeline lengkap preprocessor + RF untuk UC-4.
+    use_soil=True bila data dari era5_land_monthly (ada kolom soil_temp_c)."""
     seed = get_settings().random_seed
     reg = RandomForestRegressor(random_state=seed, **hp)
     return Pipeline([
-        ("pre", build_uc4_preprocessor()),
+        ("pre", build_uc4_preprocessor(use_soil=use_soil)),
         ("reg", reg),
     ])
 
 
-def build_uc4_baseline() -> Pipeline:
-    """Baseline: DummyRegressor mean (rata-rata suhu semua grid)."""
+def build_uc4_baseline(use_soil: bool = False) -> Pipeline:
+    """Baseline: DummyRegressor mean."""
     from sklearn.dummy import DummyRegressor
     return Pipeline([
-        ("pre", build_uc4_preprocessor()),
+        ("pre", build_uc4_preprocessor(use_soil=use_soil)),
         ("reg", DummyRegressor(strategy="mean")),
     ])

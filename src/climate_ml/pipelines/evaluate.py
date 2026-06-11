@@ -38,9 +38,10 @@ def evaluate_uc4(df, target: str = "t2m_celsius", n_splits: int = 5) -> dict:
     df = prepare_uc4_frame(df)
     X, y = df, df[target]
     splits = max(2, min(n_splits, len(df) // 10))
+    use_soil = "soil_temp_c" in df.columns
 
-    model_pred = cross_val_predict(build_uc4_pipeline(), X, y, cv=splits)
-    base_pred = cross_val_predict(build_uc4_baseline(), X, y, cv=splits)
+    model_pred = cross_val_predict(build_uc4_pipeline(use_soil=use_soil), X, y, cv=splits)
+    base_pred = cross_val_predict(build_uc4_baseline(use_soil=use_soil), X, y, cv=splits)
 
     model_m = regression_metrics(y, model_pred)
     base_m = regression_metrics(y, base_pred)
@@ -53,13 +54,14 @@ def evaluate_uc4(df, target: str = "t2m_celsius", n_splits: int = 5) -> dict:
     }
 
 
-def evaluate_uc2(df, target: str = "t2m", n_splits: int = 5) -> dict:
+def evaluate_uc2(df, target: str = "t2m", n_splits: int = 5,
+                 use_landcover: bool = False) -> dict:
     """Cross-val regresi vs baseline klimatologi (mean). Gate: skill_score > 0."""
     X, y = df, df[target]
     splits = max(2, min(n_splits, len(df) // 4))
 
-    model_pred = cross_val_predict(build_uc2_pipeline(), X, y, cv=splits)
-    base_pred = cross_val_predict(build_uc2_baseline(), X, y, cv=splits)
+    model_pred = cross_val_predict(build_uc2_pipeline(use_landcover=use_landcover), X, y, cv=splits)
+    base_pred = cross_val_predict(build_uc2_baseline(use_landcover=use_landcover), X, y, cv=splits)
 
     model_m = regression_metrics(y, model_pred)
     base_m = regression_metrics(y, base_pred)

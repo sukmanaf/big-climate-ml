@@ -5,9 +5,12 @@ Dokumentasi interaktif: http://localhost:8000/docs
 """
 from __future__ import annotations
 
+from collections import defaultdict
+from typing import Optional
 from contextlib import asynccontextmanager
 from pathlib import Path
 
+import numpy as np
 import pandas as pd
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
@@ -21,6 +24,11 @@ from climate_ml.models.anomaly_detector import detect_anomalies, rule_based_flag
 from climate_ml.serving.schemas import (
     AnomalyRequest,
     AnomalyResponse,
+    BatchClimateRequest,
+    DisasterRiskZone,
+    BatchClimateResponse,
+    BatchWeatherRequest,
+    BatchWeatherResponse,
     ClimateRequest,
     ClimateResponse,
     Era5Request,
@@ -28,16 +36,41 @@ from climate_ml.serving.schemas import (
     Health,
     ModelInfo,
     SampleWeather,
+    ShapValue,
     WeatherRequest,
     WeatherResponse,
     ZoneRisk,
 )
 from climate_ml.utils.io import load_artifact
 
+_PROV_CODE_MAP = {
+    "diy":    "DI Yogyakarta",
+    "sulsel": "Sulawesi Selatan",
+    "jabar":  "Jawa Barat",
+}
+
 _MODEL = {"pipeline": None, "meta": {}}        # UC-1 (klasifikasi cuaca)
 _MODEL_UC2 = {"pipeline": None, "meta": {}}    # UC-2 (regresi iklim)
 _MODEL_UC3 = {"iso": None, "meta": {}}         # UC-3 (anomali — IsolationForest pre-trained)
 _MODEL_UC4 = {"pipeline": None, "meta": {}}    # UC-4 (interpolasi spasial ERA5)
+_MODEL_UC5 = {"pipeline": None, "meta": {}}    # UC-5 (disaster risk ML)
+_EXPLAINER = {"uc1": None, "uc2": None}        # SHAP TreeExplainer cache
+
+# Peta indeks fitur setelah ColumnTransformer → nama tampilan (digroup)
+# UC-1: num[0-5] + cyc[6-11] (sin_arah,sin_hour,sin_month,cos_arah,cos_hour,cos_month) + cat[12-13] (musim)
+_UC1_FEAT_MAP: dict[int, str] = {
+    0: "suhu_c", 1: "kelembaban_pct", 2: "kecepatan_angin_kmh",
+    3: "tutupan_awan_pct", 4: "koordinat", 5: "koordinat",
+    6: "arah_angin", 7: "hour", 8: "bulan",
+    9: "arah_angin", 10: "hour", 11: "bulan",
+    12: "musim", 13: "musim",
+}
+# UC-2: num[0-4] (rh2m,ws2m,rad,lat,lon) + cyc[5-6] (sin/cos month)
+_UC2_FEAT_MAP: dict[int, str] = {
+    0: "kelembaban (RH)", 1: "kecepatan angin", 2: "radiasi surya",
+    3: "koordinat", 4: "koordinat",
+    5: "bulan", 6: "bulan",
+}
 
 
 def _model_path() -> Path:
@@ -56,6 +89,21 @@ def _model_path_uc4() -> Path:
     return Path(get_settings().model_dir) / "UC4_spatial_interp_latest.joblib"
 
 
+def _model_path_uc5() -> Path:
+    return Path(get_settings().model_dir) / "UC5_disaster_risk_latest.joblib"
+
+
+def _shap_list(shap_row: np.ndarray, feat_map: dict[int, str]) -> list[ShapValue]:
+    """Grupkan raw SHAP (abs) per nama asli fitur, normalisasi, return top-5."""
+    groups: dict[str, float] = defaultdict(float)
+    for idx, name in feat_map.items():
+        if idx < len(shap_row):
+            groups[name] += float(abs(shap_row[idx]))
+    total = sum(groups.values()) or 1.0
+    ranked = sorted(groups.items(), key=lambda x: x[1], reverse=True)
+    return [ShapValue(f=name, w=round(raw / total, 4), raw=round(raw, 6)) for name, raw in ranked[:5]]
+
+
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     path = _model_path()
@@ -70,6 +118,20 @@ async def lifespan(app: FastAPI):
     path4 = _model_path_uc4()
     if path4.exists():
         _MODEL_UC4["pipeline"], _MODEL_UC4["meta"] = load_artifact(path4)
+    path5 = _model_path_uc5()
+    if path5.exists():
+        _MODEL_UC5["pipeline"], _MODEL_UC5["meta"] = load_artifact(path5)
+
+    # Inisialisasi SHAP TreeExplainer (lazy, opsional)
+    try:
+        import shap as _shap
+        if _MODEL["pipeline"] is not None:
+            _EXPLAINER["uc1"] = _shap.TreeExplainer(_MODEL["pipeline"].named_steps["clf"])
+        if _MODEL_UC2["pipeline"] is not None:
+            _EXPLAINER["uc2"] = _shap.TreeExplainer(_MODEL_UC2["pipeline"].named_steps["reg"])
+    except Exception:
+        pass  # SHAP opsional — prediksi tetap berjalan tanpa XAI
+
     yield
 
 
@@ -119,9 +181,29 @@ def predict_weather(req: WeatherRequest) -> WeatherResponse:
     classes = [str(c) for c in pipeline.named_steps["clf"].classes_]
     probabilities = {c: round(float(p), 4) for c, p in zip(classes, proba_arr, strict=True)}
     pred = max(probabilities, key=probabilities.get)
+
+    shap_vals: list[ShapValue] = []
+    if _EXPLAINER["uc1"] is not None:
+        try:
+            X_t = pipeline.named_steps["pre"].transform(df)
+            sv = _EXPLAINER["uc1"].shap_values(X_t)
+            # sv shapes:
+            #   old shap: list[(n_samples, n_features)] per class
+            #   new shap: ndarray (n_samples, n_features, n_classes)
+            if isinstance(sv, list):
+                row = np.abs(np.stack([s[0] for s in sv], axis=0)).sum(axis=0)
+            elif sv.ndim == 3:
+                row = np.abs(sv[0]).sum(axis=1)  # sum across classes → (n_features,)
+            else:
+                row = np.abs(sv[0])
+            shap_vals = _shap_list(row, _UC1_FEAT_MAP)
+        except Exception:
+            pass
+
     return WeatherResponse(
         predicted=pred, proba=probabilities[pred], probabilities=probabilities,
         model_version=_MODEL["meta"].get("model_version", "dev"),
+        shap=shap_vals,
     )
 
 
@@ -130,12 +212,30 @@ def predict_climate(req: ClimateRequest) -> ClimateResponse:
     if _MODEL_UC2["pipeline"] is None:
         raise HTTPException(503, "Model UC-2 belum dilatih. Jalankan `make demo`.")
     df = pd.DataFrame([req.model_dump()])
-    value = float(_MODEL_UC2["pipeline"].predict(df)[0])
+    pipeline = _MODEL_UC2["pipeline"]
+    value = float(pipeline.predict(df)[0])
     target = _MODEL_UC2["meta"].get("target", "t2m")
+
+    # Conformal CI: ±ci_q90 disimpan saat training
+    ci_q90 = _MODEL_UC2["meta"].get("ci_q90")
+    ci_low  = round(value - ci_q90, 2) if ci_q90 is not None else None
+    ci_high = round(value + ci_q90, 2) if ci_q90 is not None else None
+
+    shap_vals: list[ShapValue] = []
+    if _EXPLAINER["uc2"] is not None:
+        try:
+            X_t = pipeline.named_steps["pre"].transform(df)
+            sv = _EXPLAINER["uc2"].shap_values(X_t)
+            row = np.abs(sv[0]) if hasattr(sv, "__len__") and sv.ndim > 1 else np.abs(sv)
+            shap_vals = _shap_list(row, _UC2_FEAT_MAP)
+        except Exception:
+            pass
+
     return ClimateResponse(
         target=target, predicted=round(value, 2),
         unit="°C" if target.startswith("t2m") else "mm/hari",
         model_version=_MODEL_UC2["meta"].get("model_version", "dev"),
+        ci_low=ci_low, ci_high=ci_high, shap=shap_vals,
     )
 
 
@@ -235,6 +335,41 @@ def risk_zones() -> list[ZoneRisk]:
     return df.to_dict(orient="records")
 
 
+@app.get("/v1/risk/disaster", response_model=list[DisasterRiskZone])
+def risk_disaster() -> list[DisasterRiskZone]:
+    """UC-5 ML: prediksi risiko bencana per wilayah dari model GradientBoosting.
+    Dilatih dari bnpb_disaster (510 wilayah, 2010–2024) + profil iklim NASA POWER."""
+    if _MODEL_UC5["pipeline"] is None:
+        raise HTTPException(503, "Model UC-5 ML belum dilatih. Jalankan train_uc5().")
+
+    from climate_ml.data.loaders import load_bnpb_disaster, load_nasa_power
+    from climate_ml.models.disaster_risk import build_uc5_training_data, risk_level_from_score
+
+    bnpb_df  = load_bnpb_disaster()
+    nasa_df  = load_nasa_power()
+    train_df = build_uc5_training_data(bnpb_df, nasa_df)
+
+    feature_cols = ["avg_t2m", "avg_tmax", "avg_precip", "avg_rh2m", "lat", "lon"]
+    preds = _MODEL_UC5["pipeline"].predict(train_df[feature_cols])
+
+    q33 = _MODEL_UC5["meta"].get("q33", float(preds.mean()))
+    q66 = _MODEL_UC5["meta"].get("q66", float(preds.mean()) * 1.5)
+
+    results = []
+    for i, row in train_df.iterrows():
+        pred = float(preds[i])
+        results.append(DisasterRiskZone(
+            nama_wilayah=str(row["nama_wilayah"]),
+            lat=round(float(row["lat"]), 4),
+            lon=round(float(row["lon"]), 4),
+            nearest_climate=str(row.get("nearest_climate", "-")),
+            predicted_kejadian=round(pred, 2),
+            risk_level=risk_level_from_score(pred, q33, q66),
+        ))
+
+    return sorted(results, key=lambda x: x.predicted_kejadian, reverse=True)
+
+
 @app.post("/v1/predict/era5", response_model=Era5Response)
 def predict_era5(req: Era5Request) -> Era5Response:
     """UC-4: prediksi suhu (t2m_celsius) di titik arbitrari via interpolasi spasial ERA5."""
@@ -312,6 +447,196 @@ def sample_climate(location_label: str | None = None, month: int | None = None):
     }
 
 
+@app.get("/v1/climate/stations/{prov}")
+def climate_stations(prov: str):
+    """Semua titik NASA POWER untuk satu provinsi dengan series bulanan.
+
+    prov: kode frontend (diy / sulsel / jabar) atau nama provinsi di DB.
+    Return: [{label, lat, lon, normalT2m, series: [{month, t2m, precip, rh, wind, rad}]}]
+    """
+    from climate_ml.data.loaders import load_nasa_power
+
+    df = load_nasa_power()
+    prov_name = _PROV_CODE_MAP.get(prov.lower(), prov)
+    sub = df[df["provinsi"].str.lower() == prov_name.lower()]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data NASA POWER untuk provinsi '{prov}'")
+
+    months_id = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+    result = []
+    for label, grp in sub.groupby("location_label"):
+        monthly = (
+            grp.groupby("month")[["t2m", "prectotcorr", "rh2m", "ws2m", "allsky_sfc_sw_dwn"]]
+            .mean().round(2)
+        )
+        series = []
+        for m in range(1, 13):
+            if m in monthly.index:
+                r = monthly.loc[m]
+                series.append({
+                    "month": months_id[m - 1],
+                    "t2m": round(float(r["t2m"]), 1),
+                    "precip": round(float(r["prectotcorr"]), 1),
+                    "rh": round(float(r["rh2m"]), 1),
+                    "wind": round(float(r["ws2m"]), 2),
+                    "rad": round(float(r["allsky_sfc_sw_dwn"]), 2),
+                })
+        lat = round(float(grp["lat"].iloc[0]), 4)
+        lon = round(float(grp["lon"].iloc[0]), 4)
+        normal_t2m = round(float(monthly["t2m"].mean()), 1) if not monthly.empty else None
+        result.append({"label": str(label), "lat": lat, "lon": lon, "normalT2m": normal_t2m, "series": series})
+
+    return result
+
+
+@app.get("/v1/climate/annual/{location_label}")
+def climate_annual(location_label: str):
+    """Agregasi tahunan NASA POWER per lokasi (rata-rata suhu, total hujan, dll).
+
+    Return: { location_label, records: [{year, t2m, precip, rh, wind, rad}] }
+    """
+    from climate_ml.data.loaders import load_nasa_power
+
+    df = load_nasa_power()
+    sub = df[df["location_label"].str.lower() == location_label.lower()]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data NASA POWER untuk '{location_label}'")
+
+    agg = (
+        sub.groupby("year")
+        .agg(
+            t2m=("t2m", "mean"),
+            precip=("prectotcorr", "sum"),
+            rh=("rh2m", "mean"),
+            wind=("ws2m", "mean"),
+            rad=("allsky_sfc_sw_dwn", "mean"),
+        )
+        .round(2)
+        .reset_index()
+        .sort_values("year")
+    )
+    records = [
+        {
+            "year": int(row["year"]),
+            "t2m": round(float(row["t2m"]), 1),
+            "precip": round(float(row["precip"]), 1),
+            "rh": round(float(row["rh"]), 1),
+            "wind": round(float(row["wind"]), 2),
+            "rad": round(float(row["rad"]), 2),
+        }
+        for _, row in agg.iterrows()
+    ]
+    return {"location_label": location_label, "records": records}
+
+
+@app.get("/v1/climate/daily/{location_label}")
+def climate_daily(location_label: str, year: Optional[int] = None, month: Optional[int] = None):
+    """Time-series harian NOAA GHCN untuk stasiun terdekat ke location_label.
+
+    Return: { location_label, station_id, station_name, station_dist_km, year, records: [{date,tmax,tmin,tavg,prcp}] }
+    """
+    import math
+    from climate_ml.data.loaders import load_nasa_power, load_noaa_ghcn
+
+    nasa = load_nasa_power()
+    loc = nasa[nasa["location_label"].str.lower() == location_label.lower()]
+    if loc.empty:
+        raise HTTPException(404, f"Lokasi '{location_label}' tidak ditemukan")
+    ref_lat = float(loc["lat"].iloc[0])
+    ref_lon = float(loc["lon"].iloc[0])
+
+    ghcn = load_noaa_ghcn()
+    if ghcn.empty:
+        raise HTTPException(404, "Tidak ada data GHCN tersedia")
+
+    stations = ghcn[["station_id", "station_name", "lat", "lon"]].drop_duplicates("station_id").copy()
+    stations["dist"] = stations.apply(
+        lambda r: math.sqrt((r["lat"] - ref_lat) ** 2 + (r["lon"] - ref_lon) ** 2), axis=1
+    )
+    nearest = stations.loc[stations["dist"].idxmin()]
+
+    sub = ghcn[ghcn["station_id"] == nearest["station_id"]]
+    if year is not None:
+        sub = sub[sub["year"] == year]
+    if month is not None:
+        sub = sub[sub["date"].str[5:7].astype(int) == month]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data harian untuk '{nearest['station_name']}'")
+
+    records = [
+        {
+            "date": str(row["date"]),
+            "tmax": round(float(row["tmax_c"]), 1) if pd.notna(row["tmax_c"]) else None,
+            "tmin": round(float(row["tmin_c"]), 1) if pd.notna(row["tmin_c"]) else None,
+            "tavg": round(float(row["tavg_c"]), 1) if pd.notna(row["tavg_c"]) else None,
+            "prcp": round(float(row["prcp_mm"]), 1) if pd.notna(row["prcp_mm"]) else None,
+        }
+        for _, row in sub.sort_values("date").iterrows()
+    ]
+    return {
+        "location_label": location_label,
+        "station_id": str(nearest["station_id"]),
+        "station_name": str(nearest["station_name"]),
+        "station_dist_km": round(float(nearest["dist"]) * 111, 1),
+        "year": year,
+        "records": records,
+    }
+
+
+@app.get("/v1/climate/years/{location_label}")
+def climate_years(location_label: str):
+    """Daftar tahun yang tersedia untuk satu lokasi NASA POWER."""
+    from climate_ml.data.loaders import load_nasa_power
+
+    df = load_nasa_power()
+    sub = df[df["location_label"].str.lower() == location_label.lower()]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data NASA POWER untuk '{location_label}'")
+    years = sorted(int(y) for y in sub["year"].dropna().unique())
+    return {"location_label": location_label, "years": years}
+
+
+@app.get("/v1/climate/series/{location_label}")
+def climate_series(location_label: str, year: Optional[int] = None):
+    """Time-series bulanan NASA POWER untuk satu lokasi.
+
+    Query param ?year=2023 untuk filter tahun tertentu; tanpa year = rata-rata semua tahun.
+    Return: { location_label, year, normalT2m, series: [{month,t2m,precip,rh,wind,rad}, ...] }
+    """
+    from climate_ml.data.loaders import load_nasa_power
+
+    df = load_nasa_power()
+    sub = df[df["location_label"].str.lower() == location_label.lower()]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data NASA POWER untuk '{location_label}'")
+
+    if year is not None:
+        sub = sub[sub["year"] == year]
+        if sub.empty:
+            raise HTTPException(404, f"Tidak ada data untuk '{location_label}' tahun {year}")
+
+    months_id = ["Jan", "Feb", "Mar", "Apr", "Mei", "Jun", "Jul", "Agu", "Sep", "Okt", "Nov", "Des"]
+    monthly = (
+        sub.groupby("month")[["t2m", "prectotcorr", "rh2m", "ws2m", "allsky_sfc_sw_dwn"]]
+        .mean()
+        .round(2)
+    )
+    series = []
+    for m in range(1, 13):
+        if m in monthly.index:
+            row = monthly.loc[m]
+            series.append({
+                "month": months_id[m - 1],
+                "t2m": round(float(row["t2m"]), 1),
+                "precip": round(float(row["prectotcorr"]), 1),
+                "rh": round(float(row["rh2m"]), 1),
+                "wind": round(float(row["ws2m"]), 2),
+                "rad": round(float(row["allsky_sfc_sw_dwn"]), 2),
+            })
+    normal_t2m = round(float(monthly["t2m"].mean()), 1) if not monthly.empty else None
+    return {"location_label": location_label, "year": year, "normalT2m": normal_t2m, "series": series}
+
+
 @app.post("/v1/anomaly/check", response_model=AnomalyResponse)
 def check_anomaly(req: AnomalyRequest) -> AnomalyResponse:
     """UC-3: dua lapis — Layer 1: rule-based range check, Layer 2: IsolationForest.
@@ -344,6 +669,68 @@ def check_anomaly(req: AnomalyRequest) -> AnomalyResponse:
         anomaly_score=round(float(row["anomaly_score"]), 4),
         method=method,
     )
+
+
+@app.post("/v1/predict/batch/weather", response_model=BatchWeatherResponse)
+def predict_weather_batch(req: BatchWeatherRequest) -> BatchWeatherResponse:
+    """UC-1 batch: prediksi kondisi cuaca untuk banyak titik sekaligus (maks 300).
+
+    SHAP dinonaktifkan untuk efisiensi batch — gunakan /v1/predict/weather untuk XAI.
+    """
+    if len(req.items) > 300:
+        raise HTTPException(400, "Maksimum 300 item per batch request.")
+    if _MODEL["pipeline"] is None:
+        raise HTTPException(503, "Model UC-1 belum dilatih.")
+
+    results: list[WeatherResponse | None] = []
+    pipeline = _MODEL["pipeline"]
+    for item in req.items:
+        try:
+            df = prepare_uc1_frame(pd.DataFrame([item.model_dump()]))
+            proba_arr = pipeline.predict_proba(df)[0]
+            classes = [str(c) for c in pipeline.named_steps["clf"].classes_]
+            probabilities = {c: round(float(p), 4) for c, p in zip(classes, proba_arr, strict=True)}
+            pred = max(probabilities, key=probabilities.get)
+            results.append(WeatherResponse(
+                predicted=pred, proba=probabilities[pred], probabilities=probabilities,
+                model_version=_MODEL["meta"].get("model_version", "dev"),
+            ))
+        except Exception:
+            results.append(None)
+    return BatchWeatherResponse(results=results, count=len(results))
+
+
+@app.post("/v1/predict/batch/climate", response_model=BatchClimateResponse)
+def predict_climate_batch(req: BatchClimateRequest) -> BatchClimateResponse:
+    """UC-2 batch: prediksi suhu bulanan untuk banyak titik sekaligus (maks 300).
+
+    Termasuk CI conformal (ci_low/ci_high). SHAP dinonaktifkan untuk efisiensi batch.
+    """
+    if len(req.items) > 300:
+        raise HTTPException(400, "Maksimum 300 item per batch request.")
+    if _MODEL_UC2["pipeline"] is None:
+        raise HTTPException(503, "Model UC-2 belum dilatih.")
+
+    pipeline = _MODEL_UC2["pipeline"]
+    target = _MODEL_UC2["meta"].get("target", "t2m")
+    ci_q90 = _MODEL_UC2["meta"].get("ci_q90")
+    model_ver = _MODEL_UC2["meta"].get("model_version", "dev")
+
+    results: list[ClimateResponse | None] = []
+    for item in req.items:
+        try:
+            df = pd.DataFrame([item.model_dump()])
+            value = float(pipeline.predict(df)[0])
+            results.append(ClimateResponse(
+                target=target, predicted=round(value, 2),
+                unit="°C" if target.startswith("t2m") else "mm/hari",
+                model_version=model_ver,
+                ci_low=round(value - ci_q90, 2) if ci_q90 is not None else None,
+                ci_high=round(value + ci_q90, 2) if ci_q90 is not None else None,
+            ))
+        except Exception:
+            results.append(None)
+    return BatchClimateResponse(results=results, count=len(results))
 
 
 # Sajikan frontend statis di /ui (mount terakhir agar tak menimpa route API)

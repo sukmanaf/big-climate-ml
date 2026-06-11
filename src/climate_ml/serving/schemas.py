@@ -15,11 +15,18 @@ class WeatherRequest(BaseModel):
     datetime_local: str
 
 
+class ShapValue(BaseModel):
+    f: str              # nama fitur (original, bukan nama setelah transform)
+    w: float            # bobot dinormalisasi 0–1
+    raw: float = 0.0    # abs SHAP sebelum normalisasi
+
+
 class WeatherResponse(BaseModel):
     predicted: str
     proba: float
     probabilities: dict[str, float] = {}
     model_version: str
+    shap: list[ShapValue] = []
 
 
 class ModelInfo(BaseModel):
@@ -46,6 +53,27 @@ class ClimateResponse(BaseModel):
     predicted: float
     unit: str
     model_version: str
+    ci_low: float | None = None
+    ci_high: float | None = None
+    shap: list[ShapValue] = []
+
+
+class BatchWeatherRequest(BaseModel):
+    items: list[WeatherRequest]
+
+
+class BatchClimateRequest(BaseModel):
+    items: list[ClimateRequest]
+
+
+class BatchWeatherResponse(BaseModel):
+    results: list[WeatherResponse | None]
+    count: int
+
+
+class BatchClimateResponse(BaseModel):
+    results: list[ClimateResponse | None]
+    count: int
 
 
 class SampleWeather(BaseModel):
@@ -103,6 +131,15 @@ class AnomalyResponse(BaseModel):
     reason: str
     anomaly_score: float = 0.0
     method: str = "rule"   # "rule" | "isolation_forest" | "both"
+
+
+class DisasterRiskZone(BaseModel):
+    nama_wilayah: str
+    lat: float
+    lon: float
+    nearest_climate: str
+    predicted_kejadian: float
+    risk_level: str   # Rendah / Sedang / Tinggi
 
 
 class Health(BaseModel):

@@ -7,10 +7,11 @@ Contoh:
 from __future__ import annotations
 
 import argparse
+import numpy as np
 
 from climate_ml.config import get_settings, load_model_config
 from climate_ml.data.validation import check_min_rows, filter_qc_clean, validate_ranges
-from climate_ml.features.build import prepare_uc1_frame, prepare_uc4_frame
+from climate_ml.features.build import enrich_uc2_with_worldcover, prepare_uc1_frame, prepare_uc4_frame
 from climate_ml.models.anomaly_detector import UC3_FEATURE_COLS, build_iso_model
 from climate_ml.models.climate_regressor import build_uc2_pipeline
 from climate_ml.models.spatial_interpolator import build_uc4_pipeline
@@ -86,15 +87,42 @@ def train_uc2(cfg: dict, df=None, source: str = "db") -> dict:
             df = load_nasa_power()
 
     df = filter_qc_clean(df)
+
+    # Enrich dengan WorldCover tutupan lahan bila tersedia
+    use_landcover = False
+    try:
+        from climate_ml.data.loaders import load_worldcover
+        wc_df = load_worldcover()
+        if not wc_df.empty:
+            df = enrich_uc2_with_worldcover(df, wc_df)
+            use_landcover = True
+            log.info("UC2: WorldCover landcover ditambahkan sebagai fitur (%d titik)", len(wc_df))
+    except Exception as exc:
+        log.warning("UC2: Gagal load WorldCover, lanjut tanpa landcover: %s", exc)
+
     target = cfg.get("target", "t2m")
     hp = cfg.get("hyperparameters", {})
 
-    eval_result = evaluate_uc2(df, target=target)
+    eval_result = evaluate_uc2(df, target=target, use_landcover=use_landcover)
     log.info("Eval UC2: %s", eval_result)
     if not eval_result["quality_gate_passed"]:
         log.warning("Quality gate UC2 TIDAK lolos (skill_score <= 0).")
 
-    pipeline = build_uc2_pipeline(cfg.get("model_name", "gradient_boosting"), **hp)
+    # Conformal prediction — cross-val residuals → q90 sebagai CI half-width
+    ci_q90 = None
+    try:
+        from sklearn.model_selection import cross_val_predict
+        pipeline_cv = build_uc2_pipeline(cfg.get("model_name", "gradient_boosting"),
+                                         use_landcover=use_landcover, **hp)
+        n_cv = min(5, max(2, len(df) // 10))
+        y_cv = cross_val_predict(pipeline_cv, df, df[target], cv=n_cv)
+        ci_q90 = round(float(np.quantile(np.abs(df[target].values - y_cv), 0.90)), 4)
+        log.info("CI q90 (UC2): %.4f °C", ci_q90)
+    except Exception as exc:
+        log.warning("Gagal menghitung CI q90: %s", exc)
+
+    pipeline = build_uc2_pipeline(cfg.get("model_name", "gradient_boosting"),
+                                  use_landcover=use_landcover, **hp)
     pipeline.fit(df, df[target])
 
     metadata = {
@@ -107,6 +135,7 @@ def train_uc2(cfg: dict, df=None, source: str = "db") -> dict:
         "baseline_metrics": eval_result["baseline"],
         "skill_score": eval_result["skill_score"],
         "quality_gate_passed": eval_result["quality_gate_passed"],
+        "ci_q90": ci_q90,
     }
     artifact = save_artifact(
         pipeline, metadata, get_settings().model_dir, "UC2_climate_reg_latest"
@@ -169,7 +198,8 @@ def train_uc4(cfg: dict, df=None, source: str = "db") -> dict:
         log.warning("Quality gate UC4 TIDAK lolos (skill_score <= 0).")
 
     prepared = prepare_uc4_frame(df)
-    pipeline = build_uc4_pipeline(**hp)
+    use_soil = "soil_temp_c" in prepared.columns
+    pipeline = build_uc4_pipeline(use_soil=use_soil, **hp)
     pipeline.fit(prepared, prepared[target])
 
     metadata = {
@@ -178,6 +208,8 @@ def train_uc4(cfg: dict, df=None, source: str = "db") -> dict:
         "model_version": "dev",
         "target": target,
         "data_rows": len(df),
+        "use_soil": use_soil,
+        "data_source": "era5_land" if use_soil else "era5_monthly",
         "metrics": eval_result["model"],
         "baseline_metrics": eval_result["baseline"],
         "skill_score": eval_result["skill_score"],
@@ -188,6 +220,75 @@ def train_uc4(cfg: dict, df=None, source: str = "db") -> dict:
     )
     log.info("Artefak disimpan: %s", artifact)
     return {"artifact": str(artifact), **eval_result}
+
+
+def train_uc5(cfg: dict = None, bnpb_df=None, nasa_df=None) -> dict:
+    """Latih UC-5: prediksi risiko bencana dari profil iklim (bnpb + nasa_power).
+
+    Menggunakan GradientBoostingRegressor untuk memprediksi avg_kejadian_per_tahun
+    per wilayah berdasarkan fitur iklim tahunan dari titik NASA POWER terdekat.
+    """
+    from climate_ml.data.loaders import load_bnpb_disaster, load_nasa_power
+    from climate_ml.models.disaster_risk import (
+        build_uc5_baseline,
+        build_uc5_pipeline,
+        build_uc5_training_data,
+    )
+    from climate_ml.utils.metrics import regression_metrics, skill_score
+
+    hp = cfg.get("hyperparameters", {}) if cfg else {}
+
+    if bnpb_df is None:
+        bnpb_df = load_bnpb_disaster()
+    if nasa_df is None:
+        nasa_df = load_nasa_power()
+
+    if bnpb_df.empty:
+        raise RuntimeError("Tabel bnpb_disaster kosong.")
+    if nasa_df.empty:
+        raise RuntimeError("Tabel nasa_power_monthly kosong — dibutuhkan untuk profil iklim.")
+
+    train_df = build_uc5_training_data(bnpb_df, nasa_df)
+    log.info("UC5 training data: %d wilayah", len(train_df))
+
+    feature_cols = ["avg_t2m", "avg_tmax", "avg_precip", "avg_rh2m", "lat", "lon"]
+    X = train_df[feature_cols]
+    y = train_df["avg_kejadian_per_tahun"]
+
+    from sklearn.model_selection import cross_val_predict
+    n_cv = max(2, min(5, len(train_df) // 20))
+    model_pred = cross_val_predict(build_uc5_pipeline(**hp), X, y, cv=n_cv)
+    base_pred  = cross_val_predict(build_uc5_baseline(), X, y, cv=n_cv)
+
+    model_m = regression_metrics(y, model_pred)
+    base_m  = regression_metrics(y, base_pred)
+    ss = skill_score(model_m["mae"], base_m["mae"])
+    log.info("Eval UC5: model=%s baseline=%s skill=%.3f", model_m, base_m, ss)
+
+    # Percentil untuk klasifikasi Rendah/Sedang/Tinggi
+    q33 = float(np.percentile(y, 33))
+    q66 = float(np.percentile(y, 66))
+
+    pipeline = build_uc5_pipeline(**hp)
+    pipeline.fit(X, y)
+
+    metadata = {
+        "use_case": "UC5",
+        "model_name": "gradient_boosting",
+        "model_version": "dev",
+        "target": "avg_kejadian_per_tahun",
+        "data_rows": len(train_df),
+        "feature_cols": feature_cols,
+        "metrics": model_m,
+        "baseline_metrics": base_m,
+        "skill_score": ss,
+        "quality_gate_passed": bool(ss > 0),
+        "q33": q33,
+        "q66": q66,
+    }
+    artifact = save_artifact(pipeline, metadata, get_settings().model_dir, "UC5_disaster_risk_latest")
+    log.info("Artefak UC5 disimpan: %s", artifact)
+    return {"artifact": str(artifact), "data_rows": len(train_df), "skill_score": ss, "q33": q33, "q66": q66}
 
 
 def main() -> None:
@@ -208,6 +309,8 @@ def main() -> None:
         train_uc3(source=args.source)
     elif uc == "UC4":
         train_uc4(cfg, source=args.source)
+    elif uc == "UC5":
+        train_uc5(cfg)
     else:
         raise SystemExit(f"Use case {args.use_case} belum diimplementasikan di CLI ini.")
 

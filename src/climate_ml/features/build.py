@@ -70,12 +70,31 @@ def build_uc1_preprocessor() -> ColumnTransformer:
     )
 
 
-def build_uc2_preprocessor() -> ColumnTransformer:
+def enrich_uc2_with_worldcover(df: pd.DataFrame, wc_df: pd.DataFrame) -> pd.DataFrame:
+    """Tambahkan kolom landcover_class ke df NASA POWER via nearest-point join.
+
+    Setiap titik NASA POWER mendapat kelas tutupan lahan ESA WorldCover
+    dari titik WorldCover terdekat.
+    """
+    if wc_df is None or wc_df.empty:
+        return df
+    wc_pts = wc_df[["lat", "lon", "landcover_class"]].copy()
+    classes = []
+    for _, row in df.iterrows():
+        d = (wc_pts["lat"] - row["lat"]) ** 2 + (wc_pts["lon"] - row["lon"]) ** 2
+        classes.append(int(wc_pts.loc[d.idxmin(), "landcover_class"]))
+    df = df.copy()
+    df["landcover_class"] = classes
+    return df
+
+
+def build_uc2_preprocessor(use_landcover: bool = False) -> ColumnTransformer:
     """Preprocessor regresi iklim bulanan (UC-2).
 
     t2m_max/t2m_min sengaja TIDAK dipakai sebagai fitur untuk target t2m —
     keduanya hampir menentukan t2m secara langsung (leakage trivial). Model
     belajar pola dari musim (month) + lokasi (lat/lon) + parameter lain.
+    use_landcover=True bila kolom landcover_class tersedia dari WorldCover.
     """
     numeric = ["rh2m", "ws2m", "allsky_sfc_sw_dwn", "lat", "lon"]
     cyclical = ["month"]
@@ -83,32 +102,39 @@ def build_uc2_preprocessor() -> ColumnTransformer:
         ("impute", SimpleImputer(strategy="median")),
         ("scale", StandardScaler()),
     ])
-    return ColumnTransformer(
-        transformers=[
-            ("num", numeric_pipe, numeric),
-            ("cyc", _sin_cos(12), cyclical),
-        ],
-        remainder="drop",
-    )
+    transformers = [
+        ("num", numeric_pipe, numeric),
+        ("cyc", _sin_cos(12), cyclical),
+    ]
+    if use_landcover:
+        transformers.append(
+            ("lc", OneHotEncoder(handle_unknown="ignore"), ["landcover_class"])
+        )
+    return ColumnTransformer(transformers=transformers, remainder="drop")
 
 
 def prepare_uc4_frame(df):
-    """Pilih kolom fitur UC-4 (interpolasi spasial ERA5)."""
-    cols = ["lat", "lon", "month"]
-    if "t2m_celsius" in df.columns:
-        cols = cols + ["t2m_celsius"]
-    return df[cols].copy()
+    """Pilih kolom fitur UC-4. Mendukung era5_monthly dan era5_land_monthly.
+    Fitur tambahan soil_temp_c dipakai bila tersedia (era5_land)."""
+    target_col = "t2m_celsius" if "t2m_celsius" in df.columns else None
+    feature_cols = ["lat", "lon", "month"]
+    if "soil_temp_c" in df.columns:
+        feature_cols.append("soil_temp_c")
+    if target_col:
+        feature_cols.append(target_col)
+    return df[feature_cols].copy()
 
 
-def build_uc4_preprocessor() -> ColumnTransformer:
-    """Preprocessor interpolasi spasial (UC-4): lokasi + bulan."""
+def build_uc4_preprocessor(use_soil: bool = False) -> ColumnTransformer:
+    """Preprocessor interpolasi spasial (UC-4): lokasi + bulan + soil_temp opsional."""
     numeric_pipe = Pipeline([
         ("impute", SimpleImputer(strategy="median")),
         ("scale", StandardScaler()),
     ])
+    num_cols = ["lat", "lon", "soil_temp_c"] if use_soil else ["lat", "lon"]
     return ColumnTransformer(
         transformers=[
-            ("num", numeric_pipe, ["lat", "lon"]),
+            ("num", numeric_pipe, num_cols),
             ("cyc", _sin_cos(12), ["month"]),
         ],
         remainder="drop",

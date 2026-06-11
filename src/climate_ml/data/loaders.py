@@ -64,10 +64,90 @@ def load_rdtr(engine: Engine | None = None) -> pd.DataFrame:
 
 
 def load_era5(engine: Engine | None = None) -> pd.DataFrame:
-    """Suhu bulanan grid ERA5 (UC-2, UC-4)."""
-    sql = """
+    """Suhu bulanan grid ERA5 (UC-4). Fallback ke era5_land jika kosong."""
+    df = _read("""
         SELECT id, year, month, t2m_kelvin, t2m_celsius,
                ST_Y(geom) AS lat, ST_X(geom) AS lon
         FROM era5_monthly
-    """
-    return _read(sql, engine)
+    """, engine)
+    if df.empty:
+        return load_era5_land(engine)
+    return df
+
+
+def load_era5_land(engine: Engine | None = None) -> pd.DataFrame:
+    """ERA5-Land bulanan — resolusi lebih tinggi, ada soil features.
+    Kolom distandarkan ke skema era5_monthly agar kompatibel dengan train_uc4."""
+    df = _read("""
+        SELECT id, year, month,
+               t2m_c          AS t2m_celsius,
+               total_precip_m AS precip_m,
+               soil_temp_c,
+               soil_moisture,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon
+        FROM era5_land_monthly
+    """, engine)
+    if not df.empty:
+        df["t2m_kelvin"] = df["t2m_celsius"] + 273.15
+    return df
+
+
+def load_noaa_ghcn(engine: Engine | None = None) -> pd.DataFrame:
+    """Observasi harian NOAA GHCN (tmax, tmin, tavg, prcp) per stasiun."""
+    return _read("""
+        SELECT id, station_id, station_name,
+               EXTRACT(YEAR FROM date::date)::int AS year,
+               date, tmax_c, tmin_c, tavg_c, prcp_mm, qc_flag,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon
+        FROM noaa_ghcn_daily
+    """, engine)
+
+
+def load_noaa_ghcn_monthly(engine: Engine | None = None) -> pd.DataFrame:
+    """Observasi NOAA GHCN diagregasi ke bulanan — kompatibel dengan nasa_power_monthly."""
+    return _read("""
+        SELECT station_id AS location_label,
+               station_name,
+               EXTRACT(YEAR FROM date::date)::int  AS year,
+               EXTRACT(MONTH FROM date::date)::int AS month,
+               AVG(tavg_c)  AS t2m,
+               MAX(tmax_c)  AS t2m_max,
+               MIN(tmin_c)  AS t2m_min,
+               SUM(prcp_mm) AS prectotcorr,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon,
+               MIN(qc_flag) AS qc_flag
+        FROM noaa_ghcn_daily
+        WHERE tavg_c IS NOT NULL
+        GROUP BY station_id, station_name, year, month, geom
+        ORDER BY station_id, year, month
+    """, engine)
+
+
+def load_bnpb_disaster(engine: Engine | None = None) -> pd.DataFrame:
+    """Data kejadian bencana BNPB per wilayah per tahun (UC-5 ML)."""
+    return _read("""
+        SELECT kode_wilayah, nama_wilayah, level, year,
+               jumlah_kejadian, qc_flag,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon
+        FROM bnpb_disaster
+        WHERE qc_flag = 'OK' OR qc_flag IS NULL
+        ORDER BY kode_wilayah, year
+    """, engine)
+
+
+def load_worldcover(engine: Engine | None = None) -> pd.DataFrame:
+    """Tutupan lahan ESA WorldCover per titik grid."""
+    return _read("""
+        SELECT id, year, landcover_class, landcover_name, qc_flag,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon
+        FROM worldcover_landuse
+    """, engine)
+
+
+def load_worldpop(engine: Engine | None = None) -> pd.DataFrame:
+    """Populasi per titik grid (WorldPop)."""
+    return _read("""
+        SELECT id, year, population, qc_flag,
+               ST_Y(geom) AS lat, ST_X(geom) AS lon
+        FROM worldpop_population
+    """, engine)
