@@ -29,12 +29,14 @@ from climate_ml.serving.schemas import (
     BatchClimateResponse,
     BatchWeatherRequest,
     BatchWeatherResponse,
+    ClimateByKabResult,
     ClimateRequest,
     ClimateResponse,
     Era5Request,
     Era5Response,
     Health,
     ModelInfo,
+    ProvinceClimateResponse,
     SampleWeather,
     ShapValue,
     WeatherRequest,
@@ -213,6 +215,17 @@ def predict_climate(req: ClimateRequest) -> ClimateResponse:
         raise HTTPException(503, "Model UC-2 belum dilatih. Jalankan `make demo`.")
     df = pd.DataFrame([req.model_dump()])
     pipeline = _MODEL_UC2["pipeline"]
+
+    # Enrich dengan landcover_class bila model butuh fitur ini
+    try:
+        from climate_ml.data.loaders import load_worldcover
+        from climate_ml.features.build import enrich_uc2_with_worldcover
+        wc_df = load_worldcover()
+        if not wc_df.empty:
+            df = enrich_uc2_with_worldcover(df, wc_df)
+    except Exception:
+        df["landcover_class"] = 0
+
     value = float(pipeline.predict(df)[0])
     target = _MODEL_UC2["meta"].get("target", "t2m")
 
@@ -716,10 +729,28 @@ def predict_climate_batch(req: BatchClimateRequest) -> BatchClimateResponse:
     ci_q90 = _MODEL_UC2["meta"].get("ci_q90")
     model_ver = _MODEL_UC2["meta"].get("model_version", "dev")
 
+    # Load worldcover once outside the loop for efficiency
+    _wc_df = None
+    try:
+        from climate_ml.data.loaders import load_worldcover
+        _wc_df = load_worldcover()
+        if _wc_df.empty:
+            _wc_df = None
+    except Exception:
+        pass
+
     results: list[ClimateResponse | None] = []
     for item in req.items:
         try:
             df = pd.DataFrame([item.model_dump()])
+            if _wc_df is not None:
+                try:
+                    from climate_ml.features.build import enrich_uc2_with_worldcover
+                    df = enrich_uc2_with_worldcover(df, _wc_df)
+                except Exception:
+                    df["landcover_class"] = 0
+            else:
+                df["landcover_class"] = 0
             value = float(pipeline.predict(df)[0])
             results.append(ClimateResponse(
                 target=target, predicted=round(value, 2),
@@ -731,6 +762,117 @@ def predict_climate_batch(req: BatchClimateRequest) -> BatchClimateResponse:
         except Exception:
             results.append(None)
     return BatchClimateResponse(results=results, count=len(results))
+
+
+@app.get("/v1/predict/climate/by-province/{prov}", response_model=ProvinceClimateResponse)
+def predict_climate_by_province(prov: str, month: int, year: Optional[int] = None) -> ProvinceClimateResponse:
+    """UC-2 batch per kab/lokasi pada satu provinsi.
+
+    Berbeda dengan ``/v1/predict/batch/climate`` (yang menerima items dengan fitur
+    sembarang), endpoint ini mengambil fitur cuaca (rh2m, ws2m, allsky_sfc_sw_dwn)
+    untuk SETIAP lokasi di provinsi dari NASA POWER, lalu memprediksi suhu per
+    lokasi memakai fiturnya sendiri.
+
+    Tujuan: menjamin tampilan "Jawa Barat" = kumpulan prediksi per kab dengan
+    fitur kabnya masing-masing, bukan diseragamkan dengan fitur kab yang sedang
+    dipilih di UI.
+
+    Args:
+        prov: kode provinsi (``jabar``/``sulsel``/``diy``) atau nama provinsi di DB.
+        month: 1–12.
+        year: opsional. Tanpa year = rata-rata semua tahun.
+    """
+    from climate_ml.data.loaders import load_nasa_power
+
+    if not (1 <= month <= 12):
+        raise HTTPException(400, "month harus 1–12")
+    if _MODEL_UC2["pipeline"] is None:
+        raise HTTPException(503, "Model UC-2 belum dilatih.")
+
+    df = load_nasa_power()
+    prov_name = _PROV_CODE_MAP.get(prov.lower(), prov)
+    sub = df[df["provinsi"].str.lower() == prov_name.lower()]
+    if sub.empty:
+        raise HTTPException(404, f"Tidak ada data NASA POWER untuk provinsi '{prov}'")
+    if year is not None:
+        sub = sub[sub["year"] == year]
+        if sub.empty:
+            raise HTTPException(404, f"Tidak ada data untuk provinsi '{prov}' tahun {year}")
+
+    sub_month = sub[sub["month"] == month]
+    if sub_month.empty:
+        raise HTTPException(404, f"Tidak ada data untuk provinsi '{prov}' bulan {month}")
+
+    grouped = sub_month.groupby("location_label").agg({
+        "lat": "first",
+        "lon": "first",
+        "rh2m": "mean",
+        "ws2m": "mean",
+        "allsky_sfc_sw_dwn": "mean",
+    })
+
+    pipeline = _MODEL_UC2["pipeline"]
+    target = _MODEL_UC2["meta"].get("target", "t2m")
+    ci_q90 = _MODEL_UC2["meta"].get("ci_q90")
+    model_ver = _MODEL_UC2["meta"].get("model_version", "dev")
+
+    # Worldcover dimuat sekali untuk enrichment fitur landcover_class.
+    _wc_df = None
+    try:
+        from climate_ml.data.loaders import load_worldcover
+        _wc_df = load_worldcover()
+        if _wc_df.empty:
+            _wc_df = None
+    except Exception:
+        _wc_df = None
+
+    unit = "°C" if target.startswith("t2m") else "mm/hari"
+    results: list[ClimateByKabResult] = []
+    for label, row in grouped.iterrows():
+        try:
+            item_df = pd.DataFrame([{
+                "lat": float(row["lat"]),
+                "lon": float(row["lon"]),
+                "month": int(month),
+                "rh2m": float(row["rh2m"]),
+                "ws2m": float(row["ws2m"]),
+                "allsky_sfc_sw_dwn": float(row["allsky_sfc_sw_dwn"]),
+            }])
+            if _wc_df is not None:
+                try:
+                    from climate_ml.features.build import enrich_uc2_with_worldcover
+                    item_df = enrich_uc2_with_worldcover(item_df, _wc_df)
+                except Exception:
+                    item_df["landcover_class"] = 0
+            else:
+                item_df["landcover_class"] = 0
+
+            value = float(pipeline.predict(item_df)[0])
+            results.append(ClimateByKabResult(
+                label=str(label),
+                lat=round(float(row["lat"]), 4),
+                lon=round(float(row["lon"]), 4),
+                rh2m=round(float(row["rh2m"]), 2),
+                ws2m=round(float(row["ws2m"]), 2),
+                allsky_sfc_sw_dwn=round(float(row["allsky_sfc_sw_dwn"]), 2),
+                predicted=round(value, 2),
+                unit=unit,
+                ci_low=round(value - ci_q90, 2) if ci_q90 is not None else None,
+                ci_high=round(value + ci_q90, 2) if ci_q90 is not None else None,
+            ))
+        except Exception:
+            # skip lokasi yang gagal predict, tapi jangan jatuhkan response
+            continue
+
+    return ProvinceClimateResponse(
+        prov=prov_name,
+        month=month,
+        year=year,
+        target=target,
+        model_version=model_ver,
+        results=results,
+        count=len(results),
+    )
 
 
 # Sajikan frontend statis di /ui (mount terakhir agar tak menimpa route API)

@@ -76,6 +76,31 @@ class BatchClimateResponse(BaseModel):
     count: int
 
 
+class ClimateByKabResult(BaseModel):
+    """Hasil prediksi UC-2 untuk satu kab/lokasi di provinsi."""
+    label: str            # location_label (mis. "Bandung", "Sukabumi")
+    lat: float
+    lon: float
+    rh2m: float           # fitur cuaca aktual kab tersebut (untuk transparansi)
+    ws2m: float
+    allsky_sfc_sw_dwn: float
+    predicted: float
+    unit: str
+    ci_low: float | None = None
+    ci_high: float | None = None
+
+
+class ProvinceClimateResponse(BaseModel):
+    """Hasil predict UC-2 per kab di satu provinsi pada bulan tertentu."""
+    prov: str
+    month: int
+    year: int | None = None
+    target: str
+    model_version: str
+    results: list[ClimateByKabResult]
+    count: int
+
+
 class SampleWeather(BaseModel):
     suhu_c: float
     kelembaban_pct: float
